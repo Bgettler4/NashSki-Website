@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "NashSki"
+version = "1.0.0"
+id = "artifacts/nashski"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 20670
+
+[services.development]
+run = "pnpm --filter @workspace/nashski run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/nashski", "run", "build" ]
+publicDir = "artifacts/nashski/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20670"
+BASE_PATH = "/"
