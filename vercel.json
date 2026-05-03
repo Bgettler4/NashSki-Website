@@ -1,0 +1,12 @@
+{
+  "buildCommand": "pnpm run build:vercel",
+  "outputDirectory": "artifacts/nashski/dist/public",
+  "installCommand": "pnpm install --frozen-lockfile --filter @workspace/nashski...",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

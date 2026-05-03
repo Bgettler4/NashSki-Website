@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
+import type { Variants } from "framer-motion";
 import {
   Anchor,
   MapPin,
@@ -38,12 +39,12 @@ import nashSkiBadge from "@/assets/nashski-badge-transparent.png";
 import lakeBackground from "@assets/download_1776997945074.jpg";
 
 // Fade in up animation variant
-const fadeInUp = {
+const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 40 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
 };
 
-const staggerContainer = {
+const staggerContainer: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
