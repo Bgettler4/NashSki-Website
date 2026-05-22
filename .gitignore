@@ -4,3 +4,4 @@ artifacts/*/dist
 .vercel
 .env
 .env.*
+.DS_Store
