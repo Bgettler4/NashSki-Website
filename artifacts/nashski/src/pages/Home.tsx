@@ -17,6 +17,12 @@ import {
 import { motion, type Variants } from "framer-motion";
 import logo from "@assets/nashski/nashski-wordmark-white.png";
 import circleLogo from "@assets/Circle_Logo_transparent.png";
+import fleetPic1 from "@assets/IMG_0560_1779517555321.PNG";
+import fleetPic2 from "@assets/IMG_0561_1779517555324.PNG";
+import fleetPic3 from "@assets/IMG_0563_1779517555328.PNG";
+import fleetPic4 from "@assets/IMG_0564_1779517555329.PNG";
+import fleetPic5 from "@assets/IMG_0567_1779517555330.PNG";
+import premiumPic from "@assets/IMG_0559_1779517895915.PNG";
 import oldHickoryMap from "@assets/OldHickoryMap_copy_1779347239605.png";
 import marinaPic from "@assets/1stPicLakeDaySec_1779346944096.webp";
 import jetskiRidePic from "@assets/generated_images/action_photo_of_a_3093.png";
@@ -27,23 +33,18 @@ const BOOK_NOW = "https://trytn.com/en/NashSkiLLC";
 const TRYTN_AVAILABILITY = "https://trytn.com/en/NashSkiLLC";
 const PREMIUM_LINK = "https://trytn.com/en/NashSkiLLC/details/a70857ba-e957-449c-9c55-85fa819a0db1?typeOfProduct=Activity";
 const SAMS_GRILL_LINK = "https://www.samssportsgrill.com/location/sams-sports-grill-blue-turtle-bay/";
-const WAIVER_LINK = "#";
+const WAIVER_LINK = "https://waiver.smartwaiver.com/w/mbmmkdrqv3jo1f3rejir5x/web/";
 const DIRECTIONS_LINK = "https://google.com/maps/place/NashSki+Jet+Ski+Rentals/data=!4m2!3m1!1s0x0:0xa1b06d541270c539?sa=X&ved=1t:2428&ictx=111";
 const INSTAGRAM_LINK = "https://www.instagram.com/nash.skii/";
 const FACEBOOK_LINK = "https://www.facebook.com/people/NashSki/61567724215545/?sk=about";
 const GOOGLE_REVIEWS_LINK = "https://g.page/r/CTnFcBJUbbChEAE/review";
 
-const handlePlaceholderClick = (e: React.MouseEvent) => {
-  e.preventDefault();
-  alert("Booking link coming soon!");
-};
-
 const BASE_FLEET = [
-  { label: "Yamaha EX", color: "from-blue-900 to-blue-700" },
-  { label: "Yamaha VX", color: "from-slate-800 to-slate-600" },
-  { label: "Yamaha FX", color: "from-blue-800 to-cyan-700" },
-  { label: "Sea-Doo Spark", color: "from-sky-800 to-sky-600" },
-  { label: "Sea-Doo GTI", color: "from-indigo-900 to-indigo-700" },
+  { label: "Yamaha EX Deluxe", img: fleetPic1 },
+  { label: "Yamaha EX Sport", img: fleetPic2 },
+  { label: "Sea-Doo Spark", img: fleetPic3 },
+  { label: "Sea-Doo Spark", img: fleetPic4 },
+  { label: "Yamaha EX Deluxe", img: fleetPic5 },
 ];
 
 function FleetCarousel() {
@@ -61,13 +62,15 @@ function FleetCarousel() {
       {BASE_FLEET.map((ski, i) => (
         <div
           key={i}
-          className={`absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-700 ${i === current ? "opacity-100" : "opacity-0"}`}
+          className={`absolute inset-0 transition-opacity duration-700 ${i === current ? "opacity-100" : "opacity-0"}`}
         >
-          <div className={`w-full h-full bg-gradient-to-br ${ski.color} flex flex-col items-center justify-center`}>
-            <div className="text-white/20 text-8xl mb-4">⛵</div>
-            <span className="text-white/80 font-semibold text-xl tracking-wide">{ski.label}</span>
-            <span className="text-white/40 text-sm mt-1">Placeholder — photo coming soon</span>
-          </div>
+          <img
+            src={ski.img}
+            alt={ski.label}
+            className="w-full h-full object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0B192D]/60 via-transparent to-transparent" />
+          <span className="absolute bottom-10 left-4 text-white font-semibold text-sm drop-shadow">{ski.label}</span>
         </div>
       ))}
       <button onClick={prev} className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-1.5 transition-colors z-10" data-testid="button-carousel-prev">
@@ -453,13 +456,13 @@ export default function Home() {
                   <h3 className="text-2xl font-bold">Standard Fleet</h3>
                   <Badge className="bg-[#0B192D] text-white">5 Skis Available</Badge>
                 </div>
-                <p className="text-sm text-muted-foreground mb-3">Yamaha EX · Yamaha VX · Yamaha FX · Sea-Doo Spark · Sea-Doo GTI</p>
+                <p className="text-sm text-muted-foreground mb-3">Yamaha EX Deluxe · EX Sport · Sea-Doo Spark</p>
                 <div className="flex items-center gap-4 mb-4 text-sm font-medium">
-                  <span className="flex items-center text-[#0B192D]"><span className="text-[#3AB9F8] mr-1 font-bold">$</span>From $XXX/hr</span>
-                  <span className="text-muted-foreground flex items-center"><Users className="w-4 h-4 mr-1 inline" />Up to X riders</span>
+                  <span className="flex items-center text-[#0B192D]"><span className="text-[#3AB9F8] mr-1 font-bold">$</span>From $110/hr</span>
+                  <span className="text-muted-foreground flex items-center"><Users className="w-4 h-4 mr-1 inline" />Up to 2 riders per jet ski</span>
                 </div>
                 <p className="text-muted-foreground mb-6 text-sm">
-                  Great for individuals, couples, and groups. Our rotating standard fleet delivers a fantastic lake day on Old Hickory Lake.
+                  Great for individuals, couples, and groups. Top speeds around 50MPH — perfect for a fun and fast lake day on Old Hickory Lake.
                 </p>
                 <Button className="w-full bg-[#3AB9F8] text-[#0B192D] hover:bg-[#3AB9F8]/90 font-bold" asChild data-testid="button-fleet-book-standard">
                   <a href={BOOK_NOW} target="_blank" rel="noopener noreferrer">Book Now</a>
@@ -472,21 +475,20 @@ export default function Home() {
               <div className="absolute top-4 left-4 z-10">
                 <Badge className="bg-[#3AB9F8] text-[#0B192D] font-bold px-3 py-1 text-sm shadow">Premium</Badge>
               </div>
-              <div className="aspect-[16/9] overflow-hidden bg-gradient-to-br from-[#0B192D] to-[#1a3a5c] flex flex-col items-center justify-center relative">
-                <Camera className="w-12 h-12 text-[#3AB9F8]/40 mb-3" />
-                <span className="text-white/50 text-sm">Yamaha VX High Output Photo</span>
-                <span className="text-white/30 text-xs mt-1">Photo coming soon</span>
+              <div className="aspect-[16/9] overflow-hidden relative">
+                <img src={premiumPic} alt="Yamaha VX High Output" className="w-full h-full object-cover object-center" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0B192D]/50 via-transparent to-transparent" />
               </div>
               <CardContent className="p-6">
                 <div className="flex justify-between items-start mb-3">
                   <h3 className="text-2xl font-bold">Yamaha VX High Output</h3>
                 </div>
                 <div className="flex items-center gap-4 mb-4 text-sm font-medium">
-                  <span className="flex items-center text-[#0B192D]"><span className="text-[#3AB9F8] mr-1 font-bold">$</span>From $XXX/hr</span>
-                  <span className="text-muted-foreground flex items-center"><Users className="w-4 h-4 mr-1 inline" />Up to X riders</span>
+                  <span className="flex items-center text-[#0B192D]"><span className="text-[#3AB9F8] mr-1 font-bold">$</span>From $125/hr</span>
+                  <span className="text-muted-foreground flex items-center"><Users className="w-4 h-4 mr-1 inline" />Up to 2 riders per jet ski</span>
                 </div>
                 <p className="text-muted-foreground mb-6 text-sm">
-                  Our premium ride — the Yamaha VX High Output delivers elevated performance, extra power, and a top-of-the-line experience on Old Hickory Lake.
+                  Our premium ride — the Yamaha VX High Output delivers elevated performance, reaching speeds of 65MPH, with extra power and a top-of-the-line experience on Old Hickory Lake.
                 </p>
                 <Button className="w-full bg-[#0B192D] text-white hover:bg-[#0B192D]/90 font-bold" asChild data-testid="button-fleet-book-premium">
                   <a href={PREMIUM_LINK} target="_blank" rel="noopener noreferrer">Book Now</a>
@@ -578,8 +580,8 @@ export default function Home() {
                 Leave Us a Google Review
               </a>
             </Button>
-            <Button size="lg" variant="outline" onClick={handlePlaceholderClick} data-testid="button-reviews-book">
-              Book Your Ride
+            <Button size="lg" variant="outline" asChild data-testid="button-reviews-book">
+              <a href={BOOK_NOW} target="_blank" rel="noopener noreferrer">Book Your Ride</a>
             </Button>
           </div>
         </div>
@@ -805,8 +807,8 @@ export default function Home() {
             <Button size="lg" className="bg-[#0B192D] text-white hover:bg-[#0B192D]/90" asChild data-testid="button-req-course">
               <a href="https://www.rentalboatsafety.com/personal-watercraft" target="_blank" rel="noopener noreferrer">Start PWC Safety Course</a>
             </Button>
-            <Button size="lg" variant="outline" onClick={handlePlaceholderClick} data-testid="button-req-waiver">
-              Complete Waiver
+            <Button size="lg" variant="outline" asChild data-testid="button-req-waiver">
+              <a href={WAIVER_LINK} target="_blank" rel="noopener noreferrer">Complete Waiver</a>
             </Button>
             <Button size="lg" className="bg-[#3AB9F8] text-[#0B192D] hover:bg-[#3AB9F8]/90 font-bold" asChild data-testid="button-req-book">
               <a href={BOOK_NOW} target="_blank" rel="noopener noreferrer">Book Now</a>
@@ -822,8 +824,8 @@ export default function Home() {
           <p className="text-lg text-[#0B192D]/70 mb-10 max-w-2xl mx-auto">
             All operators and participating guests must complete the required NashSki liability waiver before launch. Completing your waiver ahead of time helps speed up check-in.
           </p>
-          <Button size="lg" onClick={handlePlaceholderClick} className="bg-[#0B192D] text-white hover:bg-[#0B192D]/90 text-lg h-16 px-12 mb-6 shadow-lg" data-testid="button-waiver-complete">
-            Complete Waiver
+          <Button size="lg" asChild className="bg-[#0B192D] text-white hover:bg-[#0B192D]/90 text-lg h-16 px-12 mb-6 shadow-lg" data-testid="button-waiver-complete">
+            <a href={WAIVER_LINK} target="_blank" rel="noopener noreferrer">Complete Waiver</a>
           </Button>
           <p className="text-sm text-[#0B192D]/60 font-medium max-w-xl mx-auto">
             Operators must also bring a government-issued photo ID and any required boating certification or course completion proof.
@@ -871,8 +873,8 @@ export default function Home() {
             <Button size="lg" variant="outline" asChild className="border-white/50 text-white hover:bg-white/10 bg-[#0B192D]/20 backdrop-blur-sm h-14 px-8 text-lg w-full sm:w-auto" data-testid="button-final-availability">
               <a href={TRYTN_AVAILABILITY} target="_blank" rel="noopener noreferrer">Check Availability</a>
             </Button>
-            <Button size="lg" variant="outline" onClick={handlePlaceholderClick} className="border-white/50 text-white hover:bg-white/10 bg-[#0B192D]/20 backdrop-blur-sm h-14 px-8 text-lg w-full sm:w-auto" data-testid="button-final-waiver">
-              Complete Waiver
+            <Button size="lg" variant="outline" asChild className="border-white/50 text-white hover:bg-white/10 bg-[#0B192D]/20 backdrop-blur-sm h-14 px-8 text-lg w-full sm:w-auto" data-testid="button-final-waiver">
+              <a href={WAIVER_LINK} target="_blank" rel="noopener noreferrer">Complete Waiver</a>
             </Button>
           </div>
         </div>

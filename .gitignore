@@ -1,7 +1,11 @@
 node_modules
 dist
 artifacts/*/dist
+*.tsbuildinfo
+.cache/
+.local/
 .vercel
 .env
 .env.*
 .DS_Store
+Thumbs.db
