@@ -12,39 +12,41 @@ import {
   MapPin, Shield, CheckCircle, Star, Calendar, Users,
   Droplets, ArrowRight, Anchor, Navigation, Sun, Phone,
   Mail, Instagram, Facebook, ChevronLeft, ChevronRight,
-  Camera, Play,
+  Camera, Play, Menu, X,
 } from "lucide-react";
 import { motion, type Variants } from "framer-motion";
+import { PricingSection } from "@/components/PricingSection";
 import logo from "@/assets/nashski/nashski-wordmark-white.png";
 import circleLogo from "@/assets/circle-logo-transparent.png";
-import fleetPic1 from "@/assets/fleet-1.png";
-import fleetPic2 from "@/assets/fleet-2.png";
-import fleetPic3 from "@/assets/fleet-3.png";
-import fleetPic4 from "@/assets/fleet-4.png";
-import fleetPic5 from "@/assets/fleet-5.png";
-import premiumPic from "@/assets/premium-yamaha-vx.png";
+import fleetPic1 from "@/assets/fleet/yamaha-ex-deluxe-1.jpg";
+import fleetPic2 from "@/assets/fleet/yamaha-ex-sport-1.jpg";
+import fleetPic3 from "@/assets/fleet/yamaha-ex-sport-2.jpg";
+import fleetPic4 from "@/assets/fleet/sea-doo-gti-1.jpg";
+import fleetPic5 from "@/assets/fleet/sea-doo-gti-2.jpg";
+import premiumPic from "@/assets/fleet/yamaha-vx-high-output.jpg";
 import oldHickoryMap from "@/assets/old-hickory-map.png";
-import marinaPic from "@/assets/blue-turtle-bay-marina.webp";
-import jetskiRidePic from "@/assets/generated_images/jet-ski-action.png";
-import foodPic from "@/assets/sams-grill.jpg";
+import foodPic from "@/assets/sams-grill-waterfront.avif";
 import groupPic from "@/assets/generated_images/friends-on-lake.png";
+
+const jetskiRidePic = "/gallery/IMG_1359_hero.JPG";
+const reelCoverPic = "/reel-cover.jpg";
 
 const BOOK_NOW = "https://trytn.com/en/NashSkiLLC";
 const TRYTN_AVAILABILITY = "https://trytn.com/en/NashSkiLLC";
 const PREMIUM_LINK = "https://trytn.com/en/NashSkiLLC/details/a70857ba-e957-449c-9c55-85fa819a0db1?typeOfProduct=Activity";
 const SAMS_GRILL_LINK = "https://www.samssportsgrill.com/location/sams-sports-grill-blue-turtle-bay/";
-const WAIVER_LINK = "https://waiver.smartwaiver.com/w/mbmmkdrqv3jo1f3rejir5x/web/";
+const WAIVER_LINK = "https://waiver.smartwaiver.com/w/2hfaueeolant2sum8db6h9/web/";
 const DIRECTIONS_LINK = "https://google.com/maps/place/NashSki+Jet+Ski+Rentals/data=!4m2!3m1!1s0x0:0xa1b06d541270c539?sa=X&ved=1t:2428&ictx=111";
 const INSTAGRAM_LINK = "https://www.instagram.com/nash.skii/";
 const FACEBOOK_LINK = "https://www.facebook.com/people/NashSki/61567724215545/?sk=about";
 const GOOGLE_REVIEWS_LINK = "https://g.page/r/CTnFcBJUbbChEAE/review";
 
 const BASE_FLEET = [
-  { label: "Yamaha EX Deluxe", img: fleetPic1 },
-  { label: "Yamaha EX Sport", img: fleetPic2 },
-  { label: "Sea-Doo Spark", img: fleetPic3 },
-  { label: "Sea-Doo Spark", img: fleetPic4 },
-  { label: "Yamaha EX Deluxe", img: fleetPic5 },
+  { label: "Yamaha EX Deluxe",       img: fleetPic1 },
+  { label: "Yamaha EX Sport",        img: fleetPic2 },
+  { label: "Yamaha EX Sport",        img: fleetPic3 },
+  { label: "Sea-Doo GTI",            img: fleetPic4 },
+  { label: "Sea-Doo GTI",            img: fleetPic5 },
 ];
 
 function FleetCarousel() {
@@ -93,8 +95,406 @@ function FleetCarousel() {
   );
 }
 
+const GOOGLE_G_SVG = (
+  <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+  </svg>
+);
+
+const AVATAR_COLORS = ["#0B192D", "#1a6b9a", "#0d4a6b", "#145e8a", "#3AB9F8", "#0a3d5c"];
+
+interface GoogleReview {
+  authorName: string;
+  authorPhotoUrl: string | null;
+  authorProfileUrl: string | null;
+  rating: number;
+  text: string;
+  relativeTime: string;
+}
+
+interface ReviewsData {
+  name: string;
+  rating: number | null;
+  userRatingCount: number;
+  reviews: GoogleReview[];
+}
+
+const CACHE_KEY = "nashski_reviews_cache";
+
+const GALLERY_PHOTOS = [
+  "/gallery/IMG_1351.JPG",
+  "/gallery/IMG_1352.JPG",
+  "/gallery/IMG_1353.JPG",
+  "/gallery/IMG_1354.JPG",
+  "/gallery/IMG_1355.JPG",
+  "/gallery/IMG_1356.JPG",
+  "/gallery/IMG_1357.JPG",
+  "/gallery/IMG_1358.JPG",
+  "/gallery/IMG_1359.JPG",
+  "/gallery/IMG_1360.JPG",
+  "/gallery/IMG_1361.JPG",
+  "/gallery/IMG_1362.JPG",
+  "/gallery/IMG_1363.JPG",
+  "/gallery/IMG_1365.JPG",
+];
+
+function GallerySlideshow() {
+  const [current, setCurrent] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused) return;
+    const timer = setInterval(() => {
+      setCurrent((c) => (c + 1) % GALLERY_PHOTOS.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [paused]);
+
+  const prev = () => setCurrent((c) => (c - 1 + GALLERY_PHOTOS.length) % GALLERY_PHOTOS.length);
+  const next = () => setCurrent((c) => (c + 1) % GALLERY_PHOTOS.length);
+
+  return (
+    <div
+      className="relative rounded-2xl overflow-hidden bg-black aspect-[4/3] group"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      {GALLERY_PHOTOS.map((src, i) => (
+        <img
+          key={src}
+          src={src}
+          alt={`NashSki on Old Hickory Lake — photo ${i + 1}`}
+          className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-700 ${i === current ? "opacity-100" : "opacity-0"}`}
+        />
+      ))}
+
+      <button
+        onClick={prev}
+        className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+        aria-label="Previous photo"
+      >
+        <ChevronLeft className="w-5 h-5" />
+      </button>
+      <button
+        onClick={next}
+        className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+        aria-label="Next photo"
+      >
+        <ChevronRight className="w-5 h-5" />
+      </button>
+
+      <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-10">
+        {GALLERY_PHOTOS.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrent(i)}
+            className={`w-1.5 h-1.5 rounded-full transition-all ${i === current ? "bg-white w-4" : "bg-white/40"}`}
+            aria-label={`Go to photo ${i + 1}`}
+          />
+        ))}
+      </div>
+
+      <div className="absolute top-3 right-3 bg-black/50 text-white text-xs px-2 py-1 rounded-full z-10">
+        {current + 1} / {GALLERY_PHOTOS.length}
+      </div>
+    </div>
+  );
+}
+
+const STATIC_REVIEWS: GoogleReview[] = [
+  {
+    authorName: "Rachelle Salisbury",
+    authorPhotoUrl: null,
+    authorProfileUrl: null,
+    rating: 5,
+    text: "Just booked with NashSki Jet Rentals and I'm SO excited!! Heard nothing but great things about this place and can't wait for summer on the water. If you're looking for a fun day in Nashville, definitely check them out!",
+    relativeTime: "a day ago",
+  },
+  {
+    authorName: "Jessica Outen",
+    authorPhotoUrl: null,
+    authorProfileUrl: null,
+    rating: 5,
+    text: "Just booked our jet skis with NashSki Jet Ski Rentals and we cannot wait!! Super easy booking process and everyone has said amazing things about them. Counting down the days already!",
+    relativeTime: "a day ago",
+  },
+  {
+    authorName: "Cooper Gettler",
+    authorPhotoUrl: null,
+    authorProfileUrl: null,
+    rating: 5,
+    text: "Great experience, very friendly and helpful with anything I needed. Jet-skis were very fast for rentals and a blast. Bryce and Phillip were great guys and I would 100% come and check them out.",
+    relativeTime: "a day ago",
+  },
+  {
+    authorName: "Gavin Palmer",
+    authorPhotoUrl: null,
+    authorProfileUrl: null,
+    rating: 5,
+    text: "Amazing experience with NashSki Rentals! The whole process was super easy from start to finish, the staff was friendly and helpful, and the jet skis were in great condition. We had an awesome time out on the water and could tell they really care about their customers.",
+    relativeTime: "a day ago",
+  },
+  {
+    authorName: "Terri Gettler",
+    authorPhotoUrl: null,
+    authorProfileUrl: null,
+    rating: 5,
+    text: "Had a great time on the water! Bryce and Phillip were very friendly and the rental process was easy from start to finish. The equipment was in great condition — Highly recommend for anyone wanting to get out on the water!",
+    relativeTime: "a day ago",
+  },
+  {
+    authorName: "Sophia Pouliot",
+    authorPhotoUrl: null,
+    authorProfileUrl: null,
+    rating: 5,
+    text: "Had an awesome experience with NashSki at Blue Turtle Bay Marina! The jet skis were clean, fast, and well-maintained, and the staff made the whole process super easy from start to finish. Everyone was friendly, professional, and made sure we had a great time.",
+    relativeTime: "2 days ago",
+  },
+  {
+    authorName: "Jacob Romero",
+    authorPhotoUrl: null,
+    authorProfileUrl: null,
+    rating: 5,
+    text: "Bryce and Philip were extraordinary to work with in setting up a fun jet ski day with my bachelor group! Will definitely recommend to anyone that is interested in a fun time on the lake while in Nashville!",
+    relativeTime: "2 days ago",
+  },
+  {
+    authorName: "Blake Miller",
+    authorPhotoUrl: null,
+    authorProfileUrl: null,
+    rating: 5,
+    text: "Was a great experience from booking until end. Will be back again next year with the family.",
+    relativeTime: "2 days ago",
+  },
+];
+
+function ReviewCard({ review, index }: { review: GoogleReview; index: number }) {
+  const [imgError, setImgError] = useState(false);
+  const initial = review.authorName.charAt(0).toUpperCase();
+  const color = AVATAR_COLORS[index % AVATAR_COLORS.length];
+
+  return (
+    <div className="bg-white rounded-2xl shadow-md border border-[#3AB9F8]/20 p-6 flex flex-col h-full">
+      {review.authorPhotoUrl && !imgError ? (
+        <img
+          src={review.authorPhotoUrl}
+          alt={review.authorName}
+          className="w-14 h-14 rounded-full object-cover mx-auto mb-3"
+          onError={() => setImgError(true)}
+          referrerPolicy="no-referrer"
+        />
+      ) : (
+        <div
+          className="w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-2xl mb-3 mx-auto"
+          style={{ backgroundColor: color }}
+        >
+          {initial}
+        </div>
+      )}
+      <p className="font-bold text-[#0B192D] text-center text-sm mb-3">{review.authorName}</p>
+      <p className="text-[#0B192D]/70 text-sm text-center leading-relaxed flex-1 mb-4">
+        {review.text || "Great experience on Old Hickory Lake!"}
+      </p>
+      <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
+        <div className="flex gap-0.5">
+          {[...Array(5)].map((_, i) => (
+            <Star key={i} className={`w-4 h-4 ${i < review.rating ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"}`} />
+          ))}
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs text-[#0B192D]/40">{review.relativeTime}</span>
+          {GOOGLE_G_SVG}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SkeletonCard() {
+  return (
+    <div className="bg-white rounded-2xl shadow-md border border-[#3AB9F8]/20 p-6 flex flex-col h-full animate-pulse">
+      <div className="w-14 h-14 rounded-full bg-gray-200 mx-auto mb-3" />
+      <div className="h-3 bg-gray-200 rounded w-1/2 mx-auto mb-3" />
+      <div className="space-y-2 flex-1 mb-4">
+        <div className="h-2 bg-gray-100 rounded w-full" />
+        <div className="h-2 bg-gray-100 rounded w-5/6 mx-auto" />
+        <div className="h-2 bg-gray-100 rounded w-4/6 mx-auto" />
+      </div>
+      <div className="pt-3 border-t border-gray-100 flex justify-between">
+        <div className="flex gap-0.5">{[...Array(5)].map((_, i) => <div key={i} className="w-4 h-4 bg-gray-200 rounded-sm" />)}</div>
+        <div className="w-4 h-4 bg-gray-200 rounded" />
+      </div>
+    </div>
+  );
+}
+
+function mergeReviews(apiReviews: GoogleReview[], staticReviews: GoogleReview[]): GoogleReview[] {
+  const apiNames = new Set(apiReviews.map((r) => r.authorName.toLowerCase().trim()));
+  const extras = staticReviews.filter((r) => !apiNames.has(r.authorName.toLowerCase().trim()));
+  return [...apiReviews, ...extras];
+}
+
+function GoogleReviewsSection() {
+  const [data, setData] = useState<ReviewsData | null>(() => {
+    try {
+      const cached = localStorage.getItem(CACHE_KEY);
+      return cached ? (JSON.parse(cached) as ReviewsData) : null;
+    } catch { return null; }
+  });
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+
+  const CARDS_PER_PAGE = 3;
+
+  useEffect(() => {
+    fetch("/api/google-reviews")
+      .then((r) => { if (!r.ok) throw new Error(); return r.json() as Promise<ReviewsData>; })
+      .then((d) => {
+        setData(d);
+        try { localStorage.setItem(CACHE_KEY, JSON.stringify(d)); } catch { /* ignore */ }
+      })
+      .catch(() => { /* keep cached data if available */ })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const rating = data?.rating ?? 5.0;
+  const count = data?.userRatingCount ?? STATIC_REVIEWS.length;
+  const apiReviews = data?.reviews ?? [];
+  const reviews = mergeReviews(apiReviews, STATIC_REVIEWS);
+  const totalPages = Math.ceil(reviews.length / CARDS_PER_PAGE);
+  const visible = reviews.slice(page * CARDS_PER_PAGE, page * CARDS_PER_PAGE + CARDS_PER_PAGE);
+  const canPrev = page > 0;
+  const canNext = page < totalPages - 1;
+
+  return (
+    <section id="reviews" className="py-20 bg-[#f0f6ff]">
+      <div className="container px-4 mx-auto max-w-6xl">
+        <div className="flex flex-col lg:flex-row gap-10 lg:items-center">
+
+          {/* Left panel */}
+          <div className="lg:w-64 flex-shrink-0">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-px h-10 bg-[#3AB9F8]" />
+              <img src={circleLogo} alt="NashSki" className="w-12 h-12 object-contain" />
+              <div className="w-px h-10 bg-[#3AB9F8]" />
+            </div>
+            <p className="text-[#3AB9F8] italic font-semibold text-lg tracking-wide uppercase mb-1">Happy</p>
+            <h2 className="text-4xl font-extrabold text-[#0B192D] leading-none mb-5">RIDERS</h2>
+            <p className="text-sm text-[#0B192D]/70 leading-relaxed mb-5">
+              At NashSki, we take pride in delivering an unforgettable experience on Old Hickory Lake. Don't just take our word for it — see what our riders have to say.
+            </p>
+            <div className="flex items-center gap-1 mb-1">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+              ))}
+              {!loading && data && (
+                <span className="text-sm font-bold text-[#0B192D] ml-1">{rating.toFixed(1)}</span>
+              )}
+            </div>
+            <p className="text-xs text-[#0B192D]/50 mb-5">
+              {loading && !data ? "Loading…" : count > 0 ? `${count} Google Review${count !== 1 ? "s" : ""}` : "Google Reviews"}
+            </p>
+            {/* Arrow nav — shown on left panel on desktop */}
+            {reviews.length > CARDS_PER_PAGE && (
+              <div className="hidden lg:flex items-center gap-2 mb-5">
+                <button
+                  onClick={() => setPage(p => Math.max(0, p - 1))}
+                  disabled={!canPrev}
+                  className="w-9 h-9 rounded-full border border-[#0B192D]/20 flex items-center justify-center text-[#0B192D] hover:bg-[#0B192D] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+                  disabled={!canNext}
+                  className="w-9 h-9 rounded-full border border-[#0B192D]/20 flex items-center justify-center text-[#0B192D] hover:bg-[#0B192D] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+                <span className="text-xs text-[#0B192D]/40 ml-1">{page + 1} / {totalPages}</span>
+              </div>
+            )}
+            <Button size="sm" asChild className="bg-[#0B192D] text-white hover:bg-[#0B192D]/90 font-bold text-xs px-4" data-testid="button-google-review">
+              <a href={GOOGLE_REVIEWS_LINK} target="_blank" rel="noopener noreferrer">★ Leave Us a Review</a>
+            </Button>
+          </div>
+
+          {/* Cards area */}
+          <div className="flex-1 min-w-0">
+            {/* Skeleton */}
+            {loading && !data && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[...Array(3)].map((_, i) => <SkeletonCard key={i} />)}
+              </div>
+            )}
+
+            {/* Live cards */}
+            {(data || !loading) && reviews.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {visible.map((r, i) => (
+                  <ReviewCard key={page * CARDS_PER_PAGE + i} review={r} index={page * CARDS_PER_PAGE + i} />
+                ))}
+              </div>
+            )}
+
+            {/* No reviews fallback */}
+            {!loading && reviews.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-14 text-center">
+                <div className="flex gap-1 mb-3">{[...Array(5)].map((_, i) => <Star key={i} className="w-6 h-6 fill-yellow-400 text-yellow-400" />)}</div>
+                <p className="text-[#0B192D]/60 text-sm mb-2">Be the first to leave a review!</p>
+                <a href={GOOGLE_REVIEWS_LINK} target="_blank" rel="noopener noreferrer" className="text-[#3AB9F8] text-sm font-semibold hover:underline">
+                  Leave a Google Review →
+                </a>
+              </div>
+            )}
+
+            {/* Mobile arrow nav + See all button */}
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              {reviews.length > CARDS_PER_PAGE && (
+                <div className="flex lg:hidden items-center gap-2">
+                  <button
+                    onClick={() => setPage(p => Math.max(0, p - 1))}
+                    disabled={!canPrev}
+                    className="w-9 h-9 rounded-full border border-[#0B192D]/20 flex items-center justify-center text-[#0B192D] hover:bg-[#0B192D] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+                    disabled={!canNext}
+                    className="w-9 h-9 rounded-full border border-[#0B192D]/20 flex items-center justify-center text-[#0B192D] hover:bg-[#0B192D] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                  <span className="text-xs text-[#0B192D]/40">{page + 1} / {totalPages}</span>
+                </div>
+              )}
+              {(data || reviews.length > 0) && (
+                <a
+                  href={DIRECTIONS_LINK}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-white border border-[#3AB9F8]/40 hover:border-[#3AB9F8] text-[#0B192D] font-semibold text-sm px-5 py-2.5 rounded-full shadow-sm hover:shadow-md transition-all"
+                >
+                  See All {count > 0 ? count : ""} Reviews on Google
+                  {GOOGLE_G_SVG}
+                </a>
+              )}
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -148,11 +548,13 @@ export default function Home() {
   const faqs = [
     {
       q: "Do I need a boating license to rent a jet ski?",
-      a: "Guests born after January 1, 1989 must satisfy one approved operator qualification before launch. Accepted options include a Tennessee Boater Education Card, a NASBLA-approved certification from another state, or the Rental PWC Safety Course.",
+      a: "",
+      node: <>Guests born after January 1, 1989 must satisfy one approved operator qualification before launch. Accepted options include a Tennessee Boater Education Card, a NASBLA-approved certification from another state, or the <a href="https://www.rentalboatsafety.com/personal-watercraft" target="_blank" rel="noopener noreferrer" className="text-[#0B192D] font-semibold underline underline-offset-2 hover:text-[#3AB9F8] transition-colors">Rental PWC Safety Course</a>.</>,
     },
     {
       q: "What if I don't have a boating certification?",
-      a: "You may complete the Rental Boat Safety Personal Watercraft Course at rentalboatsafety.com/personal-watercraft before your arrival. It's fully online and self-paced.",
+      a: "",
+      node: <>You may complete the <a href="https://www.rentalboatsafety.com/personal-watercraft" target="_blank" rel="noopener noreferrer" className="text-[#0B192D] font-semibold underline underline-offset-2 hover:text-[#3AB9F8] transition-colors">Rental Boat Safety Personal Watercraft Course</a> before your arrival. It's fully online and self-paced.</>,
     },
     {
       q: "How old do you have to be to rent a jet ski?",
@@ -164,11 +566,13 @@ export default function Home() {
     },
     {
       q: "Where are you located?",
-      a: "NashSki is located at Blue Turtle Bay Marina on Old Hickory Lake, just outside Nashville, TN.",
+      a: "",
+      node: <>NashSki is located at Blue Turtle Bay Marina on Old Hickory Lake, just outside Nashville, TN. <a href="https://www.google.com/maps/place/NashSki+Jet+Ski+Rentals/@36.2514372,-86.6384876,17z/data=!3m1!4b1!4m6!3m5!1s0x8864416e9ad5a671:0xa1b06d541270c539!8m2!3d36.2514372!4d-86.6384876!16s%2Fg%2F11z7cyjx10?entry=ttu&g_ep=EgoyMDI2MDYyOC4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener noreferrer" className="text-[#0B192D] font-semibold underline underline-offset-2 hover:text-[#3AB9F8] transition-colors">View us on Google Maps</a>.</>,
     },
     {
       q: "How do I book?",
-      a: "Use the Book Now or Check Availability buttons on this website to reserve your ride online. You can also call our onsite tiki hut at 615-547-8104.",
+      a: "",
+      node: <>Use the <a href={BOOK_NOW} target="_blank" rel="noopener noreferrer" className="text-[#0B192D] font-semibold underline underline-offset-2 hover:text-[#3AB9F8] transition-colors">Book Now</a> or Check Availability buttons on this website to reserve your ride online. You can also call our onsite tiki hut at <a href="tel:6155478104" className="text-[#0B192D] font-semibold underline underline-offset-2 hover:text-[#3AB9F8] transition-colors">615-547-8104</a>.</>,
     },
     {
       q: "Is fuel included?",
@@ -188,7 +592,8 @@ export default function Home() {
     },
     {
       q: "Can groups book multiple jet skis?",
-      a: "Yes, depending on availability. Check availability online or call NashSki at 615-547-8104 for group booking assistance.",
+      a: "",
+      node: <>Yes, depending on availability. Check availability online or call NashSki at <a href="tel:6155478104" className="text-[#0B192D] font-semibold underline underline-offset-2 hover:text-[#3AB9F8] transition-colors">615-547-8104</a> for group booking assistance.</>,
     },
   ];
 
@@ -197,24 +602,99 @@ export default function Home() {
       {/* Navigation */}
       <header
         className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-          scrolled ? "bg-[#0B192D]/90 backdrop-blur-md py-3 shadow-md" : "bg-transparent py-5"
-        }`}
+          scrolled || mobileMenuOpen ? "bg-[#0B192D]/95 backdrop-blur-md shadow-md" : "bg-transparent"
+        } ${mobileMenuOpen ? "py-3" : scrolled ? "py-3" : "py-5"}`}
       >
-        <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
-          <a href="#hero" className="flex-shrink-0" data-testid="link-logo">
+        <div className="container mx-auto px-8 md:px-10 flex items-center justify-between">
+          <a href="#hero" className="flex-shrink-0 mr-6" data-testid="link-logo" onClick={() => setMobileMenuOpen(false)}>
             <img src={logo} alt="NashSki Rentals" className="h-8 md:h-10 w-auto" />
           </a>
-          <nav className="hidden md:flex items-center gap-8">
-            <a href="#about" className="text-white/90 hover:text-white text-sm font-medium transition-colors" data-testid="link-nav-about">About</a>
-            <a href="#pricing" className="text-white/90 hover:text-white text-sm font-medium transition-colors" data-testid="link-nav-pricing">Pricing</a>
-            <a href="#location" className="text-white/90 hover:text-white text-sm font-medium transition-colors" data-testid="link-nav-location">Location</a>
-            <a href="#experience" className="text-white/90 hover:text-white text-sm font-medium transition-colors" data-testid="link-nav-experience">Experience</a>
-            <a href="#faq" className="text-white/90 hover:text-white text-sm font-medium transition-colors" data-testid="link-nav-faq">FAQ</a>
-            <Button asChild className="bg-[#3AB9F8] text-[#0B192D] hover:bg-[#3AB9F8]/90 font-semibold px-6" data-testid="button-nav-book">
-              <a href={BOOK_NOW} target="_blank" rel="noopener noreferrer">Book Now</a>
-            </Button>
+          {/* Desktop nav — all siblings share the same gap for equal spacing */}
+          <nav className="hidden md:flex items-center gap-5">
+            <a href="#hero" className="text-white/90 hover:text-white text-xs font-medium transition-colors tracking-wide">Home</a>
+            <a href="#about" className="text-white/90 hover:text-white text-xs font-medium transition-colors tracking-wide" data-testid="link-nav-about">About</a>
+            <a href="#pricing" className="text-white/90 hover:text-white text-xs font-medium transition-colors tracking-wide" data-testid="link-nav-pricing">Pricing</a>
+            <a href="#experience" className="text-white/90 hover:text-white text-xs font-medium transition-colors tracking-wide" data-testid="link-nav-experience">Experience</a>
+            <a href="#requirements" className="text-white/90 hover:text-white text-xs font-medium transition-colors tracking-wide" data-testid="link-nav-requirements">Rental Requirements</a>
+            <a href="#reviews" className="text-white/90 hover:text-white text-xs font-medium transition-colors tracking-wide" data-testid="link-nav-reviews">Reviews</a>
+            <a href="#faq" className="text-white/90 hover:text-white text-xs font-medium transition-colors tracking-wide" data-testid="link-nav-faq">FAQ</a>
+            <a href={INSTAGRAM_LINK} target="_blank" rel="noopener noreferrer" className="text-white/80 hover:text-[#3AB9F8] transition-colors" aria-label="Instagram" data-testid="link-nav-instagram">
+              <Instagram className="w-4 h-4" />
+            </a>
+            <a href={FACEBOOK_LINK} target="_blank" rel="noopener noreferrer" className="text-white/80 hover:text-[#3AB9F8] transition-colors" aria-label="Facebook" data-testid="link-nav-facebook">
+              <Facebook className="w-4 h-4" />
+            </a>
+            <div className="flex flex-col items-center gap-0.5">
+              <Button asChild size="sm" className="bg-[#3AB9F8] text-[#0B192D] hover:bg-[#3AB9F8]/90 font-semibold px-5 h-8 text-xs w-full" data-testid="button-nav-book">
+                <a href={BOOK_NOW} target="_blank" rel="noopener noreferrer">Book Now</a>
+              </Button>
+              <a href="tel:6155478104" className="text-[#3AB9F8] hover:text-white text-[10px] font-semibold flex items-center gap-1 transition-colors" data-testid="link-nav-phone">
+                <Phone className="w-3 h-3" />615-547-8104
+              </a>
+            </div>
           </nav>
+
+          {/* Mobile: quick-access phone link */}
+          <a href="tel:6155478104" className="flex md:hidden items-center gap-1 text-[#3AB9F8] hover:text-white text-xs font-semibold mr-2 transition-colors" data-testid="link-nav-phone-mobile" aria-label="Call NashSki">
+            <Phone className="w-4 h-4" />
+            <span>615-547-8104</span>
+          </a>
+
+          {/* Mobile: hamburger button */}
+          <button
+            className="flex md:hidden items-center justify-center w-10 h-10 text-white rounded-lg hover:bg-white/10 transition-colors"
+            onClick={() => setMobileMenuOpen(o => !o)}
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            data-testid="button-mobile-menu"
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         </div>
+
+        {/* Mobile dropdown menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-[#0B192D]/98 backdrop-blur-md border-t border-white/10 px-4 pb-6 pt-4 flex flex-col gap-1">
+            {[
+              { label: "Home", href: "#hero" },
+              { label: "Book Now", href: BOOK_NOW, external: true, highlight: true },
+              { label: "Pricing", href: "#pricing" },
+              { label: "Experience", href: "#experience" },
+              { label: "Rental Requirements", href: "#requirements" },
+              { label: "Reviews", href: "#reviews" },
+              { label: "FAQ", href: "#faq" },
+              { label: "Contact", href: "#contact" },
+            ].map(({ label, href, external, highlight }) => (
+              <a
+                key={label}
+                href={href}
+                target={external ? "_blank" : undefined}
+                rel={external ? "noopener noreferrer" : undefined}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`px-4 py-3 rounded-xl text-base font-semibold transition-colors ${
+                  highlight
+                    ? "bg-[#3AB9F8] text-[#0B192D] text-center"
+                    : "text-white/90 hover:text-white hover:bg-white/10"
+                }`}
+              >
+                {label}
+              </a>
+            ))}
+            {/* Social + phone row */}
+            <div className="flex items-center justify-between mt-3 pt-4 border-t border-white/10 px-1">
+              <div className="flex items-center gap-4">
+                <a href={INSTAGRAM_LINK} target="_blank" rel="noopener noreferrer" className="text-white/70 hover:text-[#3AB9F8] transition-colors" aria-label="Instagram">
+                  <Instagram className="w-6 h-6" />
+                </a>
+                <a href={FACEBOOK_LINK} target="_blank" rel="noopener noreferrer" className="text-white/70 hover:text-[#3AB9F8] transition-colors" aria-label="Facebook">
+                  <Facebook className="w-6 h-6" />
+                </a>
+              </div>
+              <a href="tel:6155478104" className="flex items-center gap-2 text-[#3AB9F8] font-semibold text-sm hover:text-white transition-colors">
+                <Phone className="w-4 h-4" />615-547-8104
+              </a>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* ─── SECTION 1: HERO ─── */}
@@ -258,13 +738,20 @@ export default function Home() {
               Launch directly from Blue Turtle Bay Marina — just outside Nashville.
             </motion.p>
 
-            <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-3 w-full max-w-xs sm:max-w-none sm:w-auto mb-12 px-2">
+            <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-3 w-full max-w-xs sm:max-w-none sm:w-auto px-2">
               <Button size="lg" asChild className="bg-[#3AB9F8] text-[#0B192D] hover:bg-[#3AB9F8]/90 text-base md:text-lg h-12 md:h-14 px-8 w-full sm:w-auto font-bold" data-testid="button-hero-book">
                 <a href={BOOK_NOW} target="_blank" rel="noopener noreferrer">Book Now</a>
               </Button>
               <Button size="lg" variant="outline" asChild className="bg-transparent border-white text-white hover:bg-white/10 text-base md:text-lg h-12 md:h-14 px-8 w-full sm:w-auto" data-testid="button-hero-availability">
                 <a href={TRYTN_AVAILABILITY} target="_blank" rel="noopener noreferrer">Check Availability</a>
               </Button>
+            </motion.div>
+
+            <motion.div variants={fadeInUp} className="mb-12 px-2 mt-4">
+              <a href="tel:6155478104" className="inline-flex items-center gap-2 text-white hover:text-[#3AB9F8] text-base font-semibold transition-colors border border-white/30 hover:border-[#3AB9F8]/60 rounded-full px-5 py-2 bg-white/10 backdrop-blur-sm" data-testid="link-hero-call">
+                <Phone className="w-4 h-4" />
+                615-547-8104
+              </a>
             </motion.div>
 
             <motion.div variants={fadeInUp} className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-8 w-full max-w-4xl border-t border-white/10 pt-6 px-2">
@@ -284,6 +771,8 @@ export default function Home() {
         </div>
       </section>
 
+      <PricingSection />
+
       {/* ─── SECTION 2: BOOKING / AVAILABILITY ─── */}
       <section id="availability" className="py-24 bg-muted/30">
         <div className="container px-4 mx-auto max-w-5xl">
@@ -301,9 +790,7 @@ export default function Home() {
               { hours: 2, id: "05d4a529-7d0e-447f-bc24-331108da8bb8", popular: true },
               { hours: 3, id: "0c96a66b-20aa-4325-9539-02dad5c65492", popular: false },
               { hours: 4, id: "0fdc4601-278b-40f5-9ac9-1276d1edabd7", popular: true },
-              { hours: 5, id: "1dd33472-0101-40ec-9a02-83212da7bf92", popular: false },
               { hours: 6, id: "1057ea1f-becc-414a-9e2a-01f8fe2d3b95", popular: false },
-              { hours: 7, id: "9f7d5e49-d4d4-44f9-b2dd-2aa2013b9c9d", popular: false },
               { hours: 8, id: "c4c9cf98-6592-428d-b780-d502b9d4178e", popular: false },
             ].map(({ hours, id, popular }) => (
               <a
@@ -371,10 +858,12 @@ export default function Home() {
                 icon: <MapPin className="w-8 h-8 text-[#3AB9F8]" />,
                 title: "Arrive at Blue Turtle Bay Marina",
                 text: "Check in directly at the marina for a seamless start to your day.",
-                imgSrc: marinaPic,
-                imgLabel: "Marina Arrival Photo",
+                reelCard: "https://www.instagram.com/reel/DZScl74xyip/",
+                imgLabel: "Marina Directions Reel",
                 link: DIRECTIONS_LINK,
-                linkLabel: "View Marina",
+                linkLabel: "Get Directions",
+                link2: INSTAGRAM_LINK,
+                linkLabel2: "Follow @nash.skii",
               },
               {
                 icon: <Droplets className="w-8 h-8 text-[#3AB9F8]" />,
@@ -389,6 +878,7 @@ export default function Home() {
                 text: "Grab a bite and a drink at Sam's Sports Grill — right onsite at Blue Turtle Bay Marina — for the perfect waterfront finish to your lake day.",
                 imgSrc: foodPic,
                 imgLabel: "Waterfront Relax Photo",
+                imgClass: "object-contain",
                 link: SAMS_GRILL_LINK,
                 linkLabel: "Sam's Sports Grill",
               },
@@ -402,8 +892,31 @@ export default function Home() {
             ].map((item, i) => (
               <Card key={i} className="bg-white/5 border-white/10 text-white hover:bg-white/10 transition-colors overflow-hidden">
                 <div className="aspect-[4/3] bg-white/10 border-b border-white/10 overflow-hidden relative">
-                  {"imgSrc" in item && item.imgSrc ? (
-                    <img src={item.imgSrc as string} alt={item.imgLabel} className="w-full h-full object-cover" />
+                  {"reelCard" in item && item.reelCard ? (
+                    <a
+                      href={item.reelCard as string}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="absolute inset-0 flex flex-col items-center justify-center group/reel cursor-pointer overflow-hidden"
+                    >
+                      <img src={reelCoverPic} alt="NashSki Marina Directions Reel" className="absolute inset-0 w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/40" />
+                      <div className="relative z-10 flex flex-col items-center gap-3 text-white px-4 text-center">
+                        <div className="flex items-center gap-2 text-xs font-semibold opacity-80">
+                          <Instagram className="w-4 h-4" />
+                          <span>@nash.skii</span>
+                        </div>
+                        <div className="w-14 h-14 rounded-full bg-white/20 border-2 border-white/60 flex items-center justify-center group-hover/reel:scale-110 transition-transform shadow-xl">
+                          <Play className="w-7 h-7 text-white fill-white ml-1" />
+                        </div>
+                        <p className="text-sm font-bold leading-snug">Directions to<br />Blue Turtle Bay Marina</p>
+                        <span className="text-xs bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full font-medium group-hover/reel:bg-white/30 transition-colors">
+                          Watch Reel on Instagram
+                        </span>
+                      </div>
+                    </a>
+                  ) : "imgSrc" in item && item.imgSrc ? (
+                    <img src={item.imgSrc as string} alt={item.imgLabel} className={`w-full h-full ${"imgClass" in item ? item.imgClass : "object-cover"}`} />
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center">
                       <Camera className="w-10 h-10 text-[#3AB9F8]/50 mb-2" />
@@ -418,11 +931,18 @@ export default function Home() {
                   </div>
                   <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
                   <p className="text-white/70 text-sm mb-3">{item.text}</p>
-                  {"link" in item && item.link && (
-                    <a href={item.link as string} target="_blank" rel="noopener noreferrer" className="text-[#3AB9F8] text-xs font-semibold hover:underline flex items-center gap-1 mt-auto">
-                      {item.linkLabel as string} →
-                    </a>
-                  )}
+                  <div className="flex flex-col gap-1 mt-auto w-full">
+                    {"link" in item && item.link && (
+                      <a href={item.link as string} target="_blank" rel="noopener noreferrer" className="text-[#3AB9F8] text-xs font-semibold hover:underline flex items-center gap-1">
+                        {item.linkLabel as string} →
+                      </a>
+                    )}
+                    {"link2" in item && item.link2 && (
+                      <a href={item.link2 as string} target="_blank" rel="noopener noreferrer" className="text-[#3AB9F8] text-xs font-semibold hover:underline flex items-center gap-1">
+                        {item.linkLabel2 as string} →
+                      </a>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -438,7 +958,7 @@ export default function Home() {
 
       {/* ─── SECTION 4: FLEET / RENTALS ─── */}
       {/* Change 3: 2 options — carousel for base fleet, single card for premium */}
-      <section id="pricing" className="py-24 bg-white">
+      <section className="py-24 bg-white">
         <div className="container px-4 mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">Our Jet Ski Rentals</h2>
@@ -456,9 +976,9 @@ export default function Home() {
                   <h3 className="text-2xl font-bold">Standard Fleet</h3>
                   <Badge className="bg-[#0B192D] text-white">5 Skis Available</Badge>
                 </div>
-                <p className="text-sm text-muted-foreground mb-3">Yamaha EX Deluxe · EX Sport · Sea-Doo Spark</p>
+                <p className="text-sm text-muted-foreground mb-3">Yamaha EX Deluxe · EX Sport · Sea-Doo GTI</p>
                 <div className="flex items-center gap-4 mb-4 text-sm font-medium">
-                  <span className="flex items-center text-[#0B192D]"><span className="text-[#3AB9F8] mr-1 font-bold">$</span>From $110/hr</span>
+                  <span className="flex items-center text-[#0B192D] font-semibold">↑ See pricing above</span>
                   <span className="text-muted-foreground flex items-center"><Users className="w-4 h-4 mr-1 inline" />Up to 2 riders per jet ski</span>
                 </div>
                 <p className="text-muted-foreground mb-6 text-sm">
@@ -484,7 +1004,7 @@ export default function Home() {
                   <h3 className="text-2xl font-bold">Yamaha VX High Output</h3>
                 </div>
                 <div className="flex items-center gap-4 mb-4 text-sm font-medium">
-                  <span className="flex items-center text-[#0B192D]"><span className="text-[#3AB9F8] mr-1 font-bold">$</span>From $125/hr</span>
+                  <span className="flex items-center text-[#0B192D] font-semibold">↑ See pricing above</span>
                   <span className="text-muted-foreground flex items-center"><Users className="w-4 h-4 mr-1 inline" />Up to 2 riders per jet ski</span>
                 </div>
                 <p className="text-muted-foreground mb-6 text-sm">
@@ -545,47 +1065,7 @@ export default function Home() {
       </section>
 
       {/* ─── SECTION 5b: GOOGLE REVIEWS ─── */}
-      {/* Change 5: Google Reviews placeholder */}
-      <section id="reviews" className="py-24 bg-white">
-        <div className="container px-4 mx-auto max-w-5xl">
-          <div className="text-center mb-12">
-            <div className="flex justify-center gap-1 mb-4">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-7 h-7 fill-yellow-400 text-yellow-400" />
-              ))}
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">What Our Riders Say</h2>
-            <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-              We're building our review base — check back soon and leave us a review after your ride.
-            </p>
-          </div>
-
-          {/* Google Reviews embed placeholder */}
-          <div className="bg-muted/30 border-2 border-dashed border-border rounded-2xl p-12 flex flex-col items-center justify-center mb-10 min-h-[200px]">
-            <Star className="w-12 h-12 text-yellow-400/50 mb-4" />
-            <p className="font-semibold text-lg text-muted-foreground mb-2">Google Reviews — Embed Coming Soon</p>
-            <p className="text-sm text-muted-foreground text-center max-w-md">
-              Our Google Business reviews will be displayed here. Be among the first to leave a review!
-            </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-            <Button
-              size="lg"
-              asChild
-              className="bg-[#0B192D] text-white hover:bg-[#0B192D]/90 font-bold"
-              data-testid="button-google-review"
-            >
-              <a href={GOOGLE_REVIEWS_LINK} target="_blank" rel="noopener noreferrer">
-                Leave Us a Google Review
-              </a>
-            </Button>
-            <Button size="lg" variant="outline" asChild data-testid="button-reviews-book">
-              <a href={BOOK_NOW} target="_blank" rel="noopener noreferrer">Book Your Ride</a>
-            </Button>
-          </div>
-        </div>
-      </section>
+      <GoogleReviewsSection />
 
       {/* ─── SECTION 5c: GALLERY & COMMERCIAL ─── */}
       {/* Change 6: Photo gallery + commercial video placeholders */}
@@ -593,28 +1073,28 @@ export default function Home() {
         <div className="container px-4 mx-auto max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">See NashSki in Action</h2>
-            <p className="text-lg text-white/70 max-w-xl mx-auto">Photos and video coming soon. Check back after our upcoming shoot.</p>
+            <p className="text-lg text-white/70 max-w-xl mx-auto">Real shots from the lake, the marina, and our fleet on Old Hickory Lake.</p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Photo Gallery Placeholder */}
-            <div className="rounded-2xl border-2 border-dashed border-white/20 bg-white/5 p-10 flex flex-col items-center justify-center min-h-[300px]">
-              <Camera className="w-14 h-14 text-[#3AB9F8]/50 mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">Photo Gallery</h3>
-              <p className="text-white/50 text-sm text-center max-w-xs">
-                Our photo gallery will live here. Real shots from the lake, the marina, and our fleet — coming soon.
-              </p>
-              <Badge className="mt-5 bg-white/10 text-white/60 border-0">Photos coming soon</Badge>
+          <div className="grid md:grid-cols-2 gap-8 items-start">
+            {/* Photo Gallery Slideshow */}
+            <div>
+              <GallerySlideshow />
+              <p className="text-white/40 text-xs text-center mt-3">Hover to pause · click arrows or dots to navigate</p>
             </div>
 
-            {/* Commercial Video Placeholder */}
-            <div className="rounded-2xl border-2 border-dashed border-white/20 bg-white/5 p-10 flex flex-col items-center justify-center min-h-[300px]">
-              <Play className="w-14 h-14 text-[#3AB9F8]/50 mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">NashSki Commercial</h3>
-              <p className="text-white/50 text-sm text-center max-w-xs">
-                Our brand commercial is currently in production. Check back soon to watch the full video.
-              </p>
-              <Badge className="mt-5 bg-white/10 text-white/60 border-0">Video coming soon</Badge>
+            {/* Commercial Video */}
+            <div className="flex flex-col items-center">
+              <div className="w-full max-w-[340px] mx-auto rounded-2xl overflow-hidden shadow-2xl" style={{ aspectRatio: "9/16" }}>
+                <iframe
+                  src="https://www.youtube.com/embed/RZqSzK3INlE?rel=0&modestbranding=1"
+                  title="NashSki Rentals Commercial"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full border-0"
+                />
+              </div>
+              <p className="text-white/40 text-xs text-center mt-3">NashSki Rentals — Official Commercial</p>
             </div>
           </div>
         </div>
@@ -719,6 +1199,25 @@ export default function Home() {
               <Shield className="w-5 h-5 text-[#0B192D] flex-shrink-0 mt-0.5" />
               <p><strong>Note:</strong> Guests born before Jan 1, 1989 are not required by TN law to hold certification, but all NashSki safety, check-in, and waiver requirements still apply.</p>
             </div>
+          </div>
+
+          {/* Rental Requirements bullets */}
+          <div className="bg-[#0B192D] text-white rounded-2xl p-6 mb-10">
+            <h3 className="font-bold text-lg mb-4 text-[#3AB9F8]">Rental Requirements</h3>
+            <ul className="space-y-4">
+              <li className="flex gap-3">
+                <CheckCircle className="w-5 h-5 text-[#3AB9F8] shrink-0 mt-0.5" />
+                <p className="text-sm text-white/90"><span className="font-bold text-white">Must be 21 years or older</span> to rent a jet ski from NashSki.</p>
+              </li>
+              <li className="flex gap-3">
+                <CheckCircle className="w-5 h-5 text-[#3AB9F8] shrink-0 mt-0.5" />
+                <p className="text-sm text-white/90"><span className="font-bold text-white">Operators ages 16–20</span> may operate a jet ski only if they possess a valid boating certification (when required by Tennessee law) and have a parent or legal guardian complete and sign the required liability waiver.</p>
+              </li>
+              <li className="flex gap-3">
+                <CheckCircle className="w-5 h-5 text-[#3AB9F8] shrink-0 mt-0.5" />
+                <p className="text-sm text-white/90"><span className="font-bold text-white">All renters and operators</span> must review, understand, and agree to the NashSki Rental &amp; Operating Agreement, including all safety rules, policies, and operating requirements.</p>
+              </li>
+            </ul>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 mb-12">
@@ -848,7 +1347,7 @@ export default function Home() {
                   {faq.q}
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-base pb-4 leading-relaxed">
-                  {faq.a}
+                  {"node" in faq ? faq.node : faq.a}
                 </AccordionContent>
               </AccordionItem>
             ))}
@@ -882,7 +1381,7 @@ export default function Home() {
 
       {/* ─── FOOTER ─── */}
       {/* Change 13: Get In Touch section with email, phone, Instagram & Facebook */}
-      <footer className="bg-[#0B192D] border-t border-white/10 text-white">
+      <footer id="contact" className="bg-[#0B192D] border-t border-white/10 text-white">
         {/* Get In Touch */}
         <div className="border-b border-white/10 py-16">
           <div className="container px-4 mx-auto max-w-4xl flex flex-col items-center text-center">
