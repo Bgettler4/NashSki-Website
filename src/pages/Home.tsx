@@ -18,6 +18,7 @@ import { motion, type Variants } from "framer-motion";
 import { PricingSection } from "@/components/PricingSection";
 import logo from "@/assets/nashski/nashski-wordmark-white.png";
 import circleLogo from "@/assets/circle-logo-transparent.png";
+import circleLogoNew from "@/assets/generated_images/nashski-logo-3d.png";
 import fleetPic1 from "@/assets/fleet/yamaha-ex-deluxe-1.jpg";
 import fleetPic2 from "@/assets/fleet/yamaha-ex-sport-1.jpg";
 import fleetPic3 from "@/assets/fleet/yamaha-ex-sport-2.jpg";
@@ -277,55 +278,38 @@ function ReviewCard({ review, index }: { review: GoogleReview; index: number }) 
   const color = AVATAR_COLORS[index % AVATAR_COLORS.length];
 
   return (
-    <div className="bg-white rounded-2xl shadow-md border border-[#3AB9F8]/20 p-6 flex flex-col h-full">
-      {review.authorPhotoUrl && !imgError ? (
-        <img
-          src={review.authorPhotoUrl}
-          alt={review.authorName}
-          className="w-14 h-14 rounded-full object-cover mx-auto mb-3"
-          onError={() => setImgError(true)}
-          referrerPolicy="no-referrer"
-        />
-      ) : (
-        <div
-          className="w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-2xl mb-3 mx-auto"
-          style={{ backgroundColor: color }}
-        >
-          {initial}
-        </div>
-      )}
-      <p className="font-bold text-[#0B192D] text-center text-sm mb-3">{review.authorName}</p>
-      <p className="text-[#0B192D]/70 text-sm text-center leading-relaxed flex-1 mb-4">
+    <div className="bg-white/[0.06] border border-white/10 rounded-2xl p-5 flex flex-col h-full hover:bg-white/[0.09] hover:border-[#3AB9F8]/30 transition-all duration-200">
+      <div className="text-[#3AB9F8] text-3xl font-serif leading-none mb-2 select-none">"</div>
+      <p className="text-white/80 text-sm leading-relaxed flex-1 mb-4 line-clamp-5">
         {review.text || "Great experience on Old Hickory Lake!"}
       </p>
-      <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
-        <div className="flex gap-0.5">
-          {[...Array(5)].map((_, i) => (
-            <Star key={i} className={`w-4 h-4 ${i < review.rating ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"}`} />
-          ))}
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs text-[#0B192D]/40">{review.relativeTime}</span>
-          {GOOGLE_G_SVG}
-        </div>
+      <div className="flex gap-0.5 mb-4">
+        {[...Array(5)].map((_, i) => (
+          <Star key={i} className={`w-3.5 h-3.5 ${i < review.rating ? "fill-yellow-400 text-yellow-400" : "fill-white/20 text-white/20"}`} />
+        ))}
       </div>
-    </div>
-  );
-}
-
-function SkeletonCard() {
-  return (
-    <div className="bg-white rounded-2xl shadow-md border border-[#3AB9F8]/20 p-6 flex flex-col h-full animate-pulse">
-      <div className="w-14 h-14 rounded-full bg-gray-200 mx-auto mb-3" />
-      <div className="h-3 bg-gray-200 rounded w-1/2 mx-auto mb-3" />
-      <div className="space-y-2 flex-1 mb-4">
-        <div className="h-2 bg-gray-100 rounded w-full" />
-        <div className="h-2 bg-gray-100 rounded w-5/6 mx-auto" />
-        <div className="h-2 bg-gray-100 rounded w-4/6 mx-auto" />
-      </div>
-      <div className="pt-3 border-t border-gray-100 flex justify-between">
-        <div className="flex gap-0.5">{[...Array(5)].map((_, i) => <div key={i} className="w-4 h-4 bg-gray-200 rounded-sm" />)}</div>
-        <div className="w-4 h-4 bg-gray-200 rounded" />
+      <div className="flex items-center gap-3 pt-3 border-t border-white/10">
+        {review.authorPhotoUrl && !imgError ? (
+          <img
+            src={review.authorPhotoUrl}
+            alt={review.authorName}
+            className="w-9 h-9 rounded-full object-cover shrink-0"
+            onError={() => setImgError(true)}
+            referrerPolicy="no-referrer"
+          />
+        ) : (
+          <div
+            className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-base shrink-0"
+            style={{ backgroundColor: color }}
+          >
+            {initial}
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          <p className="text-white font-semibold text-xs truncate">{review.authorName}</p>
+          <p className="text-white/40 text-[11px]">{review.relativeTime}</p>
+        </div>
+        <div className="ml-auto shrink-0">{GOOGLE_G_SVG}</div>
       </div>
     </div>
   );
@@ -344,10 +328,7 @@ function GoogleReviewsSection() {
       return cached ? (JSON.parse(cached) as ReviewsData) : null;
     } catch { return null; }
   });
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(0);
-
-  const CARDS_PER_PAGE = 3;
+  const [paused, setPaused] = useState(false);
 
   useEffect(() => {
     fetch("/api/google-reviews")
@@ -356,136 +337,90 @@ function GoogleReviewsSection() {
         setData(d);
         try { localStorage.setItem(CACHE_KEY, JSON.stringify(d)); } catch { /* ignore */ }
       })
-      .catch(() => { /* keep cached data if available */ })
-      .finally(() => setLoading(false));
+      .catch(() => { /* keep cached data if available */ });
   }, []);
 
   const rating = data?.rating ?? 5.0;
-  const count = data?.userRatingCount ?? STATIC_REVIEWS.length;
-  const apiReviews = data?.reviews ?? [];
-  const reviews = mergeReviews(apiReviews, STATIC_REVIEWS);
-  const totalPages = Math.ceil(reviews.length / CARDS_PER_PAGE);
-  const visible = reviews.slice(page * CARDS_PER_PAGE, page * CARDS_PER_PAGE + CARDS_PER_PAGE);
-  const canPrev = page > 0;
-  const canNext = page < totalPages - 1;
+  const count = data?.userRatingCount ?? 0;
+  const reviews = mergeReviews(data?.reviews ?? [], STATIC_REVIEWS);
+  const marqueeReviews = [...reviews, ...reviews];
 
   return (
-    <section id="reviews" className="py-20 bg-[#f0f6ff]">
-      <div className="container px-4 mx-auto max-w-6xl">
-        <div className="flex flex-col lg:flex-row gap-10 lg:items-center">
-
-          {/* Left panel */}
-          <div className="lg:w-64 flex-shrink-0">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-px h-10 bg-[#3AB9F8]" />
-              <img src={circleLogo} alt="NashSki" className="w-12 h-12 object-contain" />
-              <div className="w-px h-10 bg-[#3AB9F8]" />
+    <section id="reviews" className="bg-[#0B192D]">
+      <div className="border-b border-white/10 py-12 px-4">
+        <div className="container mx-auto max-w-6xl">
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-8 md:justify-between">
+            <div className="flex items-center gap-5">
+              <img
+                src={circleLogoNew}
+                alt="NashSki"
+                className="w-28 h-28 object-contain drop-shadow-[0_0_18px_rgba(58,185,248,0.5)] shrink-0"
+              />
+              <div>
+                <p className="text-[#3AB9F8] text-xs font-bold uppercase tracking-widest mb-1">Old Hickory Lake · Nashville, TN</p>
+                <h2 className="text-3xl md:text-4xl font-extrabold text-white leading-tight">
+                  What Our Riders<br className="hidden sm:block" /> Are Saying
+                </h2>
+                <p className="text-white/50 text-sm mt-2 max-w-xs">
+                  Real reviews from real riders on Old Hickory Lake.
+                </p>
+              </div>
             </div>
-            <p className="text-[#3AB9F8] italic font-semibold text-lg tracking-wide uppercase mb-1">Happy</p>
-            <h2 className="text-4xl font-extrabold text-[#0B192D] leading-none mb-5">RIDERS</h2>
-            <p className="text-sm text-[#0B192D]/70 leading-relaxed mb-5">
-              At NashSki, we take pride in delivering an unforgettable experience on Old Hickory Lake. Don't just take our word for it — see what our riders have to say.
-            </p>
-            <div className="flex items-center gap-1 mb-1">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-              ))}
-              {!loading && data && (
-                <span className="text-sm font-bold text-[#0B192D] ml-1">{rating.toFixed(1)}</span>
-              )}
-            </div>
-            <p className="text-xs text-[#0B192D]/50 mb-5">
-              {loading && !data ? "Loading…" : count > 0 ? `${count} Google Review${count !== 1 ? "s" : ""}` : "Google Reviews"}
-            </p>
-            {/* Arrow nav — shown on left panel on desktop */}
-            {reviews.length > CARDS_PER_PAGE && (
-              <div className="hidden lg:flex items-center gap-2 mb-5">
-                <button
-                  onClick={() => setPage(p => Math.max(0, p - 1))}
-                  disabled={!canPrev}
-                  className="w-9 h-9 rounded-full border border-[#0B192D]/20 flex items-center justify-center text-[#0B192D] hover:bg-[#0B192D] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
-                  disabled={!canNext}
-                  className="w-9 h-9 rounded-full border border-[#0B192D]/20 flex items-center justify-center text-[#0B192D] hover:bg-[#0B192D] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-                <span className="text-xs text-[#0B192D]/40 ml-1">{page + 1} / {totalPages}</span>
-              </div>
-            )}
-            <Button size="sm" asChild className="bg-[#0B192D] text-white hover:bg-[#0B192D]/90 font-bold text-xs px-4" data-testid="button-google-review">
-              <a href={GOOGLE_REVIEWS_LINK} target="_blank" rel="noopener noreferrer">★ Leave Us a Review</a>
-            </Button>
-          </div>
 
-          {/* Cards area */}
-          <div className="flex-1 min-w-0">
-            {/* Skeleton */}
-            {loading && !data && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[...Array(3)].map((_, i) => <SkeletonCard key={i} />)}
+            <div className="flex flex-col items-center md:items-end gap-1.5 shrink-0">
+              <div className="flex items-center gap-2 mb-1">
+                {GOOGLE_G_SVG}
+                <span className="text-white/60 text-sm font-medium">Google Reviews</span>
               </div>
-            )}
-
-            {/* Live cards */}
-            {(data || !loading) && reviews.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {visible.map((r, i) => (
-                  <ReviewCard key={page * CARDS_PER_PAGE + i} review={r} index={page * CARDS_PER_PAGE + i} />
-                ))}
-              </div>
-            )}
-
-            {/* No reviews fallback */}
-            {!loading && reviews.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-14 text-center">
-                <div className="flex gap-1 mb-3">{[...Array(5)].map((_, i) => <Star key={i} className="w-6 h-6 fill-yellow-400 text-yellow-400" />)}</div>
-                <p className="text-[#0B192D]/60 text-sm mb-2">Be the first to leave a review!</p>
-                <a href={GOOGLE_REVIEWS_LINK} target="_blank" rel="noopener noreferrer" className="text-[#3AB9F8] text-sm font-semibold hover:underline">
-                  Leave a Google Review →
-                </a>
-              </div>
-            )}
-
-            {/* Mobile arrow nav + See all button */}
-            <div className="mt-6 flex flex-wrap items-center gap-3">
-              {reviews.length > CARDS_PER_PAGE && (
-                <div className="flex lg:hidden items-center gap-2">
-                  <button
-                    onClick={() => setPage(p => Math.max(0, p - 1))}
-                    disabled={!canPrev}
-                    className="w-9 h-9 rounded-full border border-[#0B192D]/20 flex items-center justify-center text-[#0B192D] hover:bg-[#0B192D] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
-                    disabled={!canNext}
-                    className="w-9 h-9 rounded-full border border-[#0B192D]/20 flex items-center justify-center text-[#0B192D] hover:bg-[#0B192D] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                  <span className="text-xs text-[#0B192D]/40">{page + 1} / {totalPages}</span>
+              <div className="flex items-center gap-3">
+                <span className="text-6xl font-black text-white leading-none">{rating.toFixed(1)}</span>
+                <div className="flex flex-col gap-1">
+                  <div className="flex gap-0.5">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                    ))}
+                  </div>
+                  <p className="text-white/40 text-xs">
+                    {count > 0 ? `${count} review${count !== 1 ? "s" : ""}` : "Google Reviews"}
+                  </p>
                 </div>
-              )}
-              {(data || reviews.length > 0) && (
-                <a
-                  href={DIRECTIONS_LINK}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-white border border-[#3AB9F8]/40 hover:border-[#3AB9F8] text-[#0B192D] font-semibold text-sm px-5 py-2.5 rounded-full shadow-sm hover:shadow-md transition-all"
-                >
-                  See All {count > 0 ? count : ""} Reviews on Google
-                  {GOOGLE_G_SVG}
-                </a>
-              )}
+              </div>
             </div>
           </div>
+        </div>
+      </div>
 
+      <div
+        className="py-10 overflow-hidden relative"
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+      >
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-24 z-10 bg-gradient-to-r from-[#0B192D] to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-24 z-10 bg-gradient-to-l from-[#0B192D] to-transparent" />
+
+        <div className={`flex gap-5 w-max ${paused ? "animate-reviews-marquee-paused" : "animate-reviews-marquee"}`}>
+          {marqueeReviews.map((review, i) => (
+            <div key={`${review.authorName}-${i}`} className="w-80 flex-shrink-0">
+              <ReviewCard review={review} index={i % reviews.length} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="px-4 pb-12">
+        <div className="container mx-auto max-w-6xl pt-6 border-t border-white/10 flex flex-wrap items-center justify-end gap-3">
+          <Button size="sm" asChild className="bg-[#3AB9F8] text-[#0B192D] hover:bg-[#3AB9F8]/90 font-bold" data-testid="button-google-review">
+            <a href={GOOGLE_REVIEWS_LINK} target="_blank" rel="noopener noreferrer">★ Leave Us a Review</a>
+          </Button>
+          <a
+            href={DIRECTIONS_LINK}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 border border-white/20 hover:border-[#3AB9F8]/50 text-white/80 hover:text-white font-semibold text-sm px-4 py-2 rounded-lg transition-all"
+          >
+            See All {count > 0 ? count : ""} Reviews on Google
+            {GOOGLE_G_SVG}
+          </a>
         </div>
       </div>
     </section>
@@ -614,9 +549,9 @@ export default function Home() {
             <a href="#hero" className="text-white/90 hover:text-white text-xs font-medium transition-colors tracking-wide">Home</a>
             <a href="#about" className="text-white/90 hover:text-white text-xs font-medium transition-colors tracking-wide" data-testid="link-nav-about">About</a>
             <a href="#pricing" className="text-white/90 hover:text-white text-xs font-medium transition-colors tracking-wide" data-testid="link-nav-pricing">Pricing</a>
-            <a href="#experience" className="text-white/90 hover:text-white text-xs font-medium transition-colors tracking-wide" data-testid="link-nav-experience">Experience</a>
-            <a href="#requirements" className="text-white/90 hover:text-white text-xs font-medium transition-colors tracking-wide" data-testid="link-nav-requirements">Rental Requirements</a>
             <a href="#reviews" className="text-white/90 hover:text-white text-xs font-medium transition-colors tracking-wide" data-testid="link-nav-reviews">Reviews</a>
+            <a href="#requirements" className="text-white/90 hover:text-white text-xs font-medium transition-colors tracking-wide" data-testid="link-nav-requirements">Rental Requirements</a>
+            <a href="#experience" className="text-white/90 hover:text-white text-xs font-medium transition-colors tracking-wide" data-testid="link-nav-experience">Experience</a>
             <a href="#faq" className="text-white/90 hover:text-white text-xs font-medium transition-colors tracking-wide" data-testid="link-nav-faq">FAQ</a>
             <a href={INSTAGRAM_LINK} target="_blank" rel="noopener noreferrer" className="text-white/80 hover:text-[#3AB9F8] transition-colors" aria-label="Instagram" data-testid="link-nav-instagram">
               <Instagram className="w-4 h-4" />
@@ -658,9 +593,9 @@ export default function Home() {
               { label: "Home", href: "#hero" },
               { label: "Book Now", href: BOOK_NOW, external: true, highlight: true },
               { label: "Pricing", href: "#pricing" },
-              { label: "Experience", href: "#experience" },
-              { label: "Rental Requirements", href: "#requirements" },
               { label: "Reviews", href: "#reviews" },
+              { label: "Rental Requirements", href: "#requirements" },
+              { label: "Experience", href: "#experience" },
               { label: "FAQ", href: "#faq" },
               { label: "Contact", href: "#contact" },
             ].map(({ label, href, external, highlight }) => (
@@ -773,6 +708,137 @@ export default function Home() {
 
       <PricingSection />
 
+      {/* ─── SECTION: GOOGLE REVIEWS ─── */}
+      <GoogleReviewsSection />
+
+      {/* ─── SECTION: BOATER CERTIFICATION ─── */}
+      <section id="requirements" className="py-24 bg-white">
+        <div className="container px-4 mx-auto max-w-5xl">
+          <div className="mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">Boater Certification & Operator Requirements</h2>
+            <p className="text-lg text-muted-foreground mb-4">
+              To operate a jet ski in Tennessee, guests born after January 1, 1989 must satisfy at least one approved operator qualification prior to launch.
+            </p>
+            <div className="bg-muted/50 p-4 rounded-lg border border-border text-sm text-muted-foreground flex gap-3">
+              <Shield className="w-5 h-5 text-[#0B192D] flex-shrink-0 mt-0.5" />
+              <p><strong>Note:</strong> Guests born before Jan 1, 1989 are not required by TN law to hold certification, but all NashSki safety, check-in, and waiver requirements still apply.</p>
+            </div>
+          </div>
+
+          <div className="bg-[#0B192D] text-white rounded-2xl p-6 mb-10">
+            <h3 className="font-bold text-lg mb-4 text-[#3AB9F8]">Rental Requirements</h3>
+            <ul className="space-y-4">
+              <li className="flex gap-3">
+                <CheckCircle className="w-5 h-5 text-[#3AB9F8] shrink-0 mt-0.5" />
+                <p className="text-sm text-white/90"><span className="font-bold text-white">Must be 21 years or older</span> to rent a jet ski from NashSki.</p>
+              </li>
+              <li className="flex gap-3">
+                <CheckCircle className="w-5 h-5 text-[#3AB9F8] shrink-0 mt-0.5" />
+                <p className="text-sm text-white/90"><span className="font-bold text-white">Operators ages 16–20</span> may operate a jet ski only if they possess a valid boating certification (when required by Tennessee law) and have a parent or legal guardian complete and sign the required liability waiver.</p>
+              </li>
+              <li className="flex gap-3">
+                <CheckCircle className="w-5 h-5 text-[#3AB9F8] shrink-0 mt-0.5" />
+                <p className="text-sm text-white/90"><span className="font-bold text-white">All renters and operators</span> must review, understand, and agree to the NashSki Rental &amp; Operating Agreement, including all safety rules, policies, and operating requirements.</p>
+              </li>
+            </ul>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6 mb-12">
+            <Card className="border-border shadow-sm hover:shadow-md transition-shadow">
+              <CardContent className="p-6 flex flex-col h-full">
+                <h3 className="font-bold text-xl mb-3">Tennessee Boater Education Card</h3>
+                <p className="text-muted-foreground flex-grow">TWRA Lifetime Boater Education Certification</p>
+              </CardContent>
+            </Card>
+            <Card className="border-border shadow-sm hover:shadow-md transition-shadow">
+              <CardContent className="p-6 flex flex-col h-full">
+                <h3 className="font-bold text-xl mb-3">NASBLA-Approved Certification</h3>
+                <p className="text-muted-foreground flex-grow">Out-of-state boating certifications may be accepted if NASBLA-approved from another state</p>
+              </CardContent>
+            </Card>
+            <Card className="border-[#3AB9F8]/40 shadow-sm hover:shadow-md transition-shadow bg-[#3AB9F8]/5 relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-[#3AB9F8] text-[#0B192D] text-xs font-bold px-3 py-1 rounded-bl-lg">
+                Recommended
+              </div>
+              <CardContent className="p-6 flex flex-col h-full pt-8">
+                <h3 className="font-bold text-xl mb-3 text-[#0B192D]">NashSki Rental PWC Safety Course</h3>
+                <p className="text-muted-foreground flex-grow mb-6">Complete the Rental Boat Safety Personal Watercraft Course prior to arrival</p>
+                <Button className="w-full bg-[#0B192D] text-white hover:bg-[#0B192D]/90" asChild data-testid="button-cert-pwc-course">
+                  <a href="https://www.rentalboatsafety.com/personal-watercraft" target="_blank" rel="noopener noreferrer">
+                    Start PWC Safety Course
+                  </a>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="mb-12 border border-border rounded-xl overflow-hidden bg-white shadow-sm">
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="item-1" className="border-b-0">
+                <AccordionTrigger className="px-6 py-4 hover:bg-muted/30 text-lg font-semibold data-[state=open]:bg-muted/30">
+                  Tennessee Boater Education Certification Option
+                </AccordionTrigger>
+                <AccordionContent className="px-6 pb-6 pt-2">
+                  <div className="space-y-6 mt-4">
+                    <ol className="relative border-l border-muted-foreground/20 ml-3 space-y-6">
+                      {[
+                        {
+                          title: "Visit the TWRA Boating Education Page",
+                          action: (
+                            <Button size="sm" variant="outline" className="mt-2" asChild data-testid="button-twra-link">
+                              <a href="https://www.tn.gov/twra/boating/boating-education.html" target="_blank" rel="noopener noreferrer">
+                                Complete Tennessee Boater Education <ArrowRight className="w-3 h-3 ml-2" />
+                              </a>
+                            </Button>
+                          ),
+                        },
+                        { title: "Choose a TWRA-Approved Course Provider" },
+                        { title: "Complete the Online Course (fully online, self-paced)" },
+                        { title: "Pass the Final Exam" },
+                        { title: "Receive Your Boater Education Card (valid for life)" },
+                        { title: "Bring Proof to Your Reservation" },
+                      ].map((step, i) => (
+                        <li key={i} className="pl-8 relative">
+                          <div className="absolute w-6 h-6 bg-[#0B192D] rounded-full flex items-center justify-center text-xs font-bold text-white -left-3 top-0 border-4 border-white shadow-sm">
+                            {i + 1}
+                          </div>
+                          <h4 className="font-semibold text-lg">{step.title}</h4>
+                          {step.action}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+
+          <div className="bg-[#0B192D]/5 border-2 border-[#0B192D]/20 rounded-xl p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 mb-12">
+            <div className="flex-shrink-0 p-4 bg-[#0B192D] text-white rounded-full">
+              <CheckCircle className="w-8 h-8" />
+            </div>
+            <div>
+              <h3 className="font-bold text-xl mb-2 text-[#0B192D]">Required At Check-In</h3>
+              <p className="text-lg text-[#0B192D]/80 font-medium">
+                Valid government-issued photo ID <span className="text-[#3AB9F8] mx-1">+</span> applicable boating certification/course completion <span className="text-[#3AB9F8] mx-1">+</span> completed NashSki waiver
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-4">
+            <Button size="lg" className="bg-[#0B192D] text-white hover:bg-[#0B192D]/90" asChild data-testid="button-req-course">
+              <a href="https://www.rentalboatsafety.com/personal-watercraft" target="_blank" rel="noopener noreferrer">Start PWC Safety Course</a>
+            </Button>
+            <Button size="lg" variant="outline" asChild data-testid="button-req-waiver">
+              <a href={WAIVER_LINK} target="_blank" rel="noopener noreferrer">Complete Waiver</a>
+            </Button>
+            <Button size="lg" className="bg-[#3AB9F8] text-[#0B192D] hover:bg-[#3AB9F8]/90 font-bold" asChild data-testid="button-req-book">
+              <a href={BOOK_NOW} target="_blank" rel="noopener noreferrer">Book Now</a>
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* ─── SECTION 2: BOOKING / AVAILABILITY ─── */}
       <section id="availability" className="py-24 bg-muted/30">
         <div className="container px-4 mx-auto max-w-5xl">
@@ -851,7 +917,7 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Change 2: placeholder images on each experience card */}
+          {/* Experience cards with media */}
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
             {[
               {
@@ -1064,11 +1130,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── SECTION 5b: GOOGLE REVIEWS ─── */}
-      <GoogleReviewsSection />
-
       {/* ─── SECTION 5c: GALLERY & COMMERCIAL ─── */}
-      {/* Change 6: Photo gallery + commercial video placeholders */}
+      {/* Photo gallery and commercial video */}
       <section id="gallery" className="py-24 bg-[#0B192D]">
         <div className="container px-4 mx-auto max-w-6xl">
           <div className="text-center mb-16">
@@ -1183,135 +1246,6 @@ export default function Home() {
                 </a>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── SECTION 7: BOATER CERTIFICATION ─── */}
-      <section id="requirements" className="py-24 bg-white">
-        <div className="container px-4 mx-auto max-w-5xl">
-          <div className="mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">Boater Certification & Operator Requirements</h2>
-            <p className="text-lg text-muted-foreground mb-4">
-              To operate a jet ski in Tennessee, guests born after January 1, 1989 must satisfy at least one approved operator qualification prior to launch.
-            </p>
-            <div className="bg-muted/50 p-4 rounded-lg border border-border text-sm text-muted-foreground flex gap-3">
-              <Shield className="w-5 h-5 text-[#0B192D] flex-shrink-0 mt-0.5" />
-              <p><strong>Note:</strong> Guests born before Jan 1, 1989 are not required by TN law to hold certification, but all NashSki safety, check-in, and waiver requirements still apply.</p>
-            </div>
-          </div>
-
-          {/* Rental Requirements bullets */}
-          <div className="bg-[#0B192D] text-white rounded-2xl p-6 mb-10">
-            <h3 className="font-bold text-lg mb-4 text-[#3AB9F8]">Rental Requirements</h3>
-            <ul className="space-y-4">
-              <li className="flex gap-3">
-                <CheckCircle className="w-5 h-5 text-[#3AB9F8] shrink-0 mt-0.5" />
-                <p className="text-sm text-white/90"><span className="font-bold text-white">Must be 21 years or older</span> to rent a jet ski from NashSki.</p>
-              </li>
-              <li className="flex gap-3">
-                <CheckCircle className="w-5 h-5 text-[#3AB9F8] shrink-0 mt-0.5" />
-                <p className="text-sm text-white/90"><span className="font-bold text-white">Operators ages 16–20</span> may operate a jet ski only if they possess a valid boating certification (when required by Tennessee law) and have a parent or legal guardian complete and sign the required liability waiver.</p>
-              </li>
-              <li className="flex gap-3">
-                <CheckCircle className="w-5 h-5 text-[#3AB9F8] shrink-0 mt-0.5" />
-                <p className="text-sm text-white/90"><span className="font-bold text-white">All renters and operators</span> must review, understand, and agree to the NashSki Rental &amp; Operating Agreement, including all safety rules, policies, and operating requirements.</p>
-              </li>
-            </ul>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
-            <Card className="border-border shadow-sm hover:shadow-md transition-shadow">
-              <CardContent className="p-6 flex flex-col h-full">
-                <h3 className="font-bold text-xl mb-3">Tennessee Boater Education Card</h3>
-                <p className="text-muted-foreground flex-grow">TWRA Lifetime Boater Education Certification</p>
-              </CardContent>
-            </Card>
-            <Card className="border-border shadow-sm hover:shadow-md transition-shadow">
-              <CardContent className="p-6 flex flex-col h-full">
-                <h3 className="font-bold text-xl mb-3">NASBLA-Approved Certification</h3>
-                <p className="text-muted-foreground flex-grow">Out-of-state boating certifications may be accepted if NASBLA-approved from another state</p>
-              </CardContent>
-            </Card>
-            <Card className="border-[#3AB9F8]/40 shadow-sm hover:shadow-md transition-shadow bg-[#3AB9F8]/5 relative overflow-hidden">
-              <div className="absolute top-0 right-0 bg-[#3AB9F8] text-[#0B192D] text-xs font-bold px-3 py-1 rounded-bl-lg">
-                Recommended
-              </div>
-              <CardContent className="p-6 flex flex-col h-full pt-8">
-                <h3 className="font-bold text-xl mb-3 text-[#0B192D]">NashSki Rental PWC Safety Course</h3>
-                <p className="text-muted-foreground flex-grow mb-6">Complete the Rental Boat Safety Personal Watercraft Course prior to arrival</p>
-                <Button className="w-full bg-[#0B192D] text-white hover:bg-[#0B192D]/90" asChild data-testid="button-cert-pwc-course">
-                  <a href="https://www.rentalboatsafety.com/personal-watercraft" target="_blank" rel="noopener noreferrer">
-                    Start PWC Safety Course
-                  </a>
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="mb-12 border border-border rounded-xl overflow-hidden bg-white shadow-sm">
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="item-1" className="border-b-0">
-                <AccordionTrigger className="px-6 py-4 hover:bg-muted/30 text-lg font-semibold data-[state=open]:bg-muted/30">
-                  Tennessee Boater Education Certification Option
-                </AccordionTrigger>
-                <AccordionContent className="px-6 pb-6 pt-2">
-                  <div className="space-y-6 mt-4">
-                    <ol className="relative border-l border-muted-foreground/20 ml-3 space-y-6">
-                      {[
-                        {
-                          title: "Visit the TWRA Boating Education Page",
-                          action: (
-                            <Button size="sm" variant="outline" className="mt-2" asChild data-testid="button-twra-link">
-                              <a href="https://www.tn.gov/twra/boating/boating-education.html" target="_blank" rel="noopener noreferrer">
-                                Complete Tennessee Boater Education <ArrowRight className="w-3 h-3 ml-2" />
-                              </a>
-                            </Button>
-                          ),
-                        },
-                        { title: "Choose a TWRA-Approved Course Provider" },
-                        { title: "Complete the Online Course (fully online, self-paced)" },
-                        { title: "Pass the Final Exam" },
-                        { title: "Receive Your Boater Education Card (valid for life)" },
-                        { title: "Bring Proof to Your Reservation" },
-                      ].map((step, i) => (
-                        <li key={i} className="pl-8 relative">
-                          <div className="absolute w-6 h-6 bg-[#0B192D] rounded-full flex items-center justify-center text-xs font-bold text-white -left-3 top-0 border-4 border-white shadow-sm">
-                            {i + 1}
-                          </div>
-                          <h4 className="font-semibold text-lg">{step.title}</h4>
-                          {step.action}
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </div>
-
-          <div className="bg-[#0B192D]/5 border-2 border-[#0B192D]/20 rounded-xl p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 mb-12">
-            <div className="flex-shrink-0 p-4 bg-[#0B192D] text-white rounded-full">
-              <CheckCircle className="w-8 h-8" />
-            </div>
-            <div>
-              <h3 className="font-bold text-xl mb-2 text-[#0B192D]">Required At Check-In</h3>
-              <p className="text-lg text-[#0B192D]/80 font-medium">
-                Valid government-issued photo ID <span className="text-[#3AB9F8] mx-1">+</span> applicable boating certification/course completion <span className="text-[#3AB9F8] mx-1">+</span> completed NashSki waiver
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap justify-center gap-4">
-            <Button size="lg" className="bg-[#0B192D] text-white hover:bg-[#0B192D]/90" asChild data-testid="button-req-course">
-              <a href="https://www.rentalboatsafety.com/personal-watercraft" target="_blank" rel="noopener noreferrer">Start PWC Safety Course</a>
-            </Button>
-            <Button size="lg" variant="outline" asChild data-testid="button-req-waiver">
-              <a href={WAIVER_LINK} target="_blank" rel="noopener noreferrer">Complete Waiver</a>
-            </Button>
-            <Button size="lg" className="bg-[#3AB9F8] text-[#0B192D] hover:bg-[#3AB9F8]/90 font-bold" asChild data-testid="button-req-book">
-              <a href={BOOK_NOW} target="_blank" rel="noopener noreferrer">Book Now</a>
-            </Button>
           </div>
         </div>
       </section>
