@@ -2,7 +2,6 @@
   "include": ["src/**/*", "api/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts"],
   "compilerOptions": {
-    "noEmit": true,
     "jsx": "preserve",
     "isolatedModules": true,
     "lib": ["esnext", "dom", "dom.iterable"],
@@ -25,7 +24,6 @@
     "target": "es2022",
     "types": ["node", "vite/client"],
     "resolveJsonModule": true,
-    "allowImportingTsExtensions": true,
     "paths": {
       "@/*": ["./src/*"]
     }
