@@ -22,9 +22,9 @@ import circleLogoNew from "@/assets/generated_images/nashski-logo-3d.png";
 import fleetPic1 from "@/assets/fleet/yamaha-ex-deluxe-1.jpg";
 import fleetPic2 from "@/assets/fleet/yamaha-ex-sport-1.jpg";
 import fleetPic3 from "@/assets/fleet/yamaha-ex-sport-2.jpg";
-import fleetPic4 from "@/assets/fleet/sea-doo-gti-1.jpg";
-import fleetPic5 from "@/assets/fleet/sea-doo-gti-2.jpg";
+import yellowExPic from "@/assets/fleet/yamaha-ex-sport-yellow.jpg";
 import premiumPic from "@/assets/fleet/yamaha-vx-high-output.jpg";
+import premiumPic2 from "@/assets/fleet/yamaha-vx-high-output-2.jpg";
 import oldHickoryMap from "@/assets/old-hickory-map.png";
 import foodPic from "@/assets/sams-grill-waterfront.avif";
 import groupPic from "@/assets/generated_images/friends-on-lake.png";
@@ -46,23 +46,27 @@ const BASE_FLEET = [
   { label: "Yamaha EX Deluxe",       img: fleetPic1 },
   { label: "Yamaha EX Sport",        img: fleetPic2 },
   { label: "Yamaha EX Sport",        img: fleetPic3 },
-  { label: "Sea-Doo GTI",            img: fleetPic4 },
-  { label: "Sea-Doo GTI",            img: fleetPic5 },
+  { label: "Yamaha EX Sport",        img: yellowExPic },
 ];
 
-function FleetCarousel() {
+const PREMIUM_FLEET = [
+  { label: "Yamaha VX High Output", img: premiumPic },
+  { label: "Yamaha VX High Output", img: premiumPic2 },
+];
+
+function FleetCarousel({ skis, testIdPrefix = "carousel" }: { skis: { label: string; img: string }[]; testIdPrefix?: string }) {
   const [current, setCurrent] = useState(0);
   useEffect(() => {
     const id = setInterval(() => {
-      setCurrent((c) => (c + 1) % BASE_FLEET.length);
+      setCurrent((c) => (c + 1) % skis.length);
     }, 2500);
     return () => clearInterval(id);
-  }, []);
-  const prev = () => setCurrent((c) => (c - 1 + BASE_FLEET.length) % BASE_FLEET.length);
-  const next = () => setCurrent((c) => (c + 1) % BASE_FLEET.length);
+  }, [skis.length]);
+  const prev = () => setCurrent((c) => (c - 1 + skis.length) % skis.length);
+  const next = () => setCurrent((c) => (c + 1) % skis.length);
   return (
     <div className="relative aspect-[16/9] overflow-hidden rounded-t-xl bg-gradient-to-br from-[#0B192D] to-[#0e2440]">
-      {BASE_FLEET.map((ski, i) => (
+      {skis.map((ski, i) => (
         <div
           key={i}
           className={`absolute inset-0 transition-opacity duration-700 ${i === current ? "opacity-100" : "opacity-0"}`}
@@ -76,20 +80,20 @@ function FleetCarousel() {
           <span className="absolute bottom-10 left-4 text-white font-semibold text-sm drop-shadow">{ski.label}</span>
         </div>
       ))}
-      <button onClick={prev} className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-1.5 transition-colors z-10" data-testid="button-carousel-prev">
+      <button onClick={prev} aria-label="Previous jet ski photo" className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-1.5 transition-colors z-10" data-testid={`button-${testIdPrefix}-prev`}>
         <ChevronLeft className="w-5 h-5" />
       </button>
-      <button onClick={next} className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-1.5 transition-colors z-10" data-testid="button-carousel-next">
+      <button onClick={next} aria-label="Next jet ski photo" className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-1.5 transition-colors z-10" data-testid={`button-${testIdPrefix}-next`}>
         <ChevronRight className="w-5 h-5" />
       </button>
       <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
-        {BASE_FLEET.map((_, i) => (
-          <button key={i} onClick={() => setCurrent(i)} className={`w-2 h-2 rounded-full transition-colors ${i === current ? "bg-[#3AB9F8]" : "bg-white/40"}`} data-testid={`button-carousel-dot-${i}`} />
+        {skis.map((_, i) => (
+          <button key={i} onClick={() => setCurrent(i)} aria-label={`Show jet ski photo ${i + 1} of ${skis.length}`} className={`w-2 h-2 rounded-full transition-colors ${i === current ? "bg-[#3AB9F8]" : "bg-white/40"}`} data-testid={`button-${testIdPrefix}-dot-${i}`} />
         ))}
       </div>
       <div className="absolute top-3 right-3 z-10">
         <Badge className="bg-[#0B192D]/70 text-white border-white/20 text-xs backdrop-blur-sm">
-          {current + 1} / {BASE_FLEET.length}
+          {current + 1} / {skis.length}
         </Badge>
       </div>
     </div>
@@ -142,6 +146,27 @@ const GALLERY_PHOTOS = [
   "/gallery/IMG_1365.JPG",
 ];
 
+// Short silent 720p cut for the hero background; the full riding video is only used by the gallery player.
+const HERO_LOOP_SRC = "/videos/nashski-hero-loop.mp4";
+const GALLERY_VIDEO_SRC = "/videos/nashski-hero-riding.mp4";
+
+const HERO_BACKGROUND_MEDIA = [
+  { kind: "image" as const, src: "/hero-bg.png" },
+  { kind: "video" as const },
+  { kind: "image" as const, src: "/gallery/IMG_1356.JPG" },
+  { kind: "video" as const },
+  { kind: "image" as const, src: "/gallery/IMG_1360.JPG" },
+];
+
+// While the video slot is active, keep the most recent photo underneath so nothing flashes as the video fades in.
+function heroPhotoAt(index: number): string {
+  for (let i = index; i >= 0; i--) {
+    const media = HERO_BACKGROUND_MEDIA[i];
+    if (media.kind === "image") return media.src;
+  }
+  return "/hero-bg.png";
+}
+
 function GallerySlideshow() {
   const [current, setCurrent] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -164,24 +189,25 @@ function GallerySlideshow() {
       onMouseLeave={() => setPaused(false)}
     >
       {GALLERY_PHOTOS.map((src, i) => (
-        <img
+        <div
           key={src}
-          src={src}
-          alt={`NashSki on Old Hickory Lake — photo ${i + 1}`}
-          className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-700 ${i === current ? "opacity-100" : "opacity-0"}`}
-        />
+          className={`absolute inset-0 overflow-hidden transition-opacity duration-700 ${i === current ? "opacity-100" : "opacity-0"}`}
+        >
+          <img src={src} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl opacity-50" />
+          <img src={src} alt={`NashSki on Old Hickory Lake — photo ${i + 1}`} className="relative w-full h-full object-contain" />
+        </div>
       ))}
 
       <button
         onClick={prev}
-        className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+        className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10"
         aria-label="Previous photo"
       >
         <ChevronLeft className="w-5 h-5" />
       </button>
       <button
         onClick={next}
-        className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+        className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10"
         aria-label="Next photo"
       >
         <ChevronRight className="w-5 h-5" />
@@ -462,12 +488,70 @@ function GoogleReviewsSection() {
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  // The hero video element isn't rendered until the page has finished loading, so it never competes with first paint.
+  const [heroVideoEnabled, setHeroVideoEnabled] = useState(false);
+  const [heroVideoPlaying, setHeroVideoPlaying] = useState(false);
+  const [heroMediaIndex, setHeroMediaIndex] = useState(0);
+  const heroVideoRef = useRef<HTMLVideoElement>(null);
+  const activeHeroMedia = HERO_BACKGROUND_MEDIA[heroMediaIndex];
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    // Reduced motion: stay on the hero photo and never load the video.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let initialTimeout: number | undefined;
+    let rotationInterval: number | undefined;
+    const advance = () => setHeroMediaIndex((current) => (current + 1) % HERO_BACKGROUND_MEDIA.length);
+    const start = () => {
+      setHeroVideoEnabled(true);
+      initialTimeout = window.setTimeout(() => {
+        advance();
+        rotationInterval = window.setInterval(advance, 12000);
+      }, 2000);
+    };
+
+    if (document.readyState === "complete") start();
+    else window.addEventListener("load", start, { once: true });
+
+    return () => {
+      window.removeEventListener("load", start);
+      window.clearTimeout(initialTimeout);
+      window.clearInterval(rotationInterval);
+    };
+  }, []);
+
+  useEffect(() => {
+    const nextMedia = HERO_BACKGROUND_MEDIA[(heroMediaIndex + 1) % HERO_BACKGROUND_MEDIA.length];
+    if (nextMedia.kind !== "image") return;
+
+    const preload = new Image();
+    preload.src = nextMedia.src;
+  }, [heroMediaIndex]);
+
+  useEffect(() => {
+    const video = heroVideoRef.current;
+    if (!video) return;
+
+    if (activeHeroMedia.kind === "video") {
+      video.currentTime = 0;
+      // If playback is blocked (e.g. Low Power Mode), skip ahead to the next photo.
+      void video.play().catch(() => {
+        setHeroMediaIndex((current) =>
+          HERO_BACKGROUND_MEDIA[current].kind === "video"
+            ? (current + 1) % HERO_BACKGROUND_MEDIA.length
+            : current
+        );
+      });
+    } else {
+      video.pause();
+    }
+  }, [heroMediaIndex, heroVideoEnabled]);
 
   const fadeInUp: Variants = {
     hidden: { opacity: 0, y: 40 },
@@ -666,10 +750,26 @@ export default function Home() {
 
       {/* ─── SECTION 1: HERO ─── */}
       <section id="hero" className="relative min-h-[100dvh] flex items-center justify-center pt-20">
-        <div className="absolute inset-0 z-0">
-          <img src="/hero-bg.png" alt="Old Hickory Lake" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-[#0B192D]/70 mix-blend-multiply"></div>
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0B192D]/80 via-[#0B192D]/40 to-[#0B192D]/90"></div>
+        <div className="absolute inset-0 z-0 overflow-hidden bg-[#0B192D]">
+          <img src={heroPhotoAt(heroMediaIndex)} alt="Old Hickory Lake" className="absolute inset-0 w-full h-full object-cover" />
+          {heroVideoEnabled && (
+            <video
+              ref={heroVideoRef}
+              aria-hidden="true"
+              tabIndex={-1}
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              onPlaying={() => setHeroVideoPlaying(true)}
+              onPause={() => setHeroVideoPlaying(false)}
+              className={`pointer-events-none absolute inset-0 z-[1] w-full h-full object-cover object-center transition-opacity duration-[750ms] ease-in-out ${activeHeroMedia.kind === "video" && heroVideoPlaying ? "opacity-100" : "opacity-0"}`}
+            >
+              <source src={HERO_LOOP_SRC} type="video/mp4" />
+            </video>
+          )}
+          <div className="pointer-events-none absolute inset-0 z-[2] bg-[#0B192D]/70 mix-blend-multiply"></div>
+          <div className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-b from-[#0B192D]/80 via-[#0B192D]/40 to-[#0B192D]/90"></div>
         </div>
 
         <div className="container relative z-10 px-5 py-12 md:py-32 flex flex-col items-center text-center w-full overflow-hidden">
@@ -738,10 +838,137 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ─── SECTION: SEE NASHSKI IN ACTION ─── */}
+      <section id="gallery" className="relative isolate overflow-hidden bg-[#071b2b] text-white">
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: `linear-gradient(180deg, rgba(7, 24, 41, 0.98) 0%, rgba(7, 27, 43, 0.68) 27%, rgba(7, 27, 43, 0.82) 70%, rgba(7, 24, 41, 0.98) 100%), url("${jetskiRidePic}")`,
+          }}
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0"
+          style={{ background: "radial-gradient(ellipse at 55% 28%, rgba(58, 185, 248, 0.18), transparent 62%)" }}
+        />
+        <div className="container relative z-10 px-4 mx-auto max-w-6xl py-20 md:py-28">
+          <div className="text-center mb-10 md:mb-14">
+            <p className="mb-4 text-xs font-bold uppercase tracking-[0.22em] text-[#73d2ff]">On the water with NashSki</p>
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+              See NashSki <span className="text-[#3AB9F8]">in Action</span>
+            </h2>
+            <p className="text-base md:text-lg text-white/80 max-w-xl mx-auto">
+              Real shots from the lake, the marina, and our fleet on Old Hickory Lake.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6 lg:gap-10 items-center max-w-5xl mx-auto">
+            <div className="rounded-3xl border border-white/20 bg-[#061b2a]/60 p-3 sm:p-4 shadow-2xl backdrop-blur-sm">
+              <GallerySlideshow />
+              <p className="text-white/70 text-xs text-center mt-4">Hover to pause · use arrows or dots to explore</p>
+            </div>
+
+            <div className="rounded-3xl border border-white/20 bg-[#061b2a]/60 p-4 sm:p-5 shadow-2xl backdrop-blur-sm">
+              <div className="w-full max-w-[320px] mx-auto rounded-2xl overflow-hidden shadow-xl" style={{ aspectRatio: "9/16" }}>
+                {/* preload="none": nothing downloads until the visitor presses play. */}
+                <video
+                  controls
+                  playsInline
+                  preload="none"
+                  poster={jetskiRidePic}
+                  aria-label="NashSki drone and jet ski riding highlights"
+                  className="w-full h-full object-cover"
+                >
+                  <source src={GALLERY_VIDEO_SRC} type="video/mp4" />
+                  Your browser does not support video playback.
+                </video>
+              </div>
+              <p className="text-white/70 text-xs text-center mt-4">NashSki drone &amp; riding highlights</p>
+            </div>
+          </div>
+
+          <div className="text-center mt-10 md:mt-14">
+            <a
+              href="#pricing"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-[#3AB9F8] px-7 py-3.5 text-sm font-bold text-[#0B192D] shadow-lg shadow-black/20 transition-colors hover:bg-[#79d3ff] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+            >
+              Explore rental pricing <ArrowRight className="w-4 h-4" />
+            </a>
+          </div>
+        </div>
+      </section>
+
       <PricingSection />
 
       {/* ─── SECTION: GOOGLE REVIEWS ─── */}
       <GoogleReviewsSection />
+
+      {/* ─── SECTION: FLEET / RENTALS ─── */}
+      <section className="py-24 bg-white">
+        <div className="container px-4 mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">Our Jet Ski Rentals</h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Choose your ride and reserve your time online.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-12">
+            {/* Card 1 — Standard Fleet (carousel) */}
+            <Card className="overflow-hidden border-border hover:shadow-xl transition-shadow group">
+              <FleetCarousel skis={BASE_FLEET} />
+              <CardContent className="p-6">
+                <div className="flex justify-between items-start mb-3">
+                  <h3 className="text-2xl font-bold">Standard Fleet</h3>
+                  <Badge className="bg-[#0B192D] text-white">4 Skis Available</Badge>
+                </div>
+                <p className="text-sm text-muted-foreground mb-3">Yamaha EX Deluxe · EX Sport</p>
+                <div className="flex items-center gap-4 mb-4 text-sm font-medium">
+                  <span className="flex items-center text-[#0B192D] font-semibold">↑ See pricing above</span>
+                  <span className="text-muted-foreground flex items-center"><Users className="w-4 h-4 mr-1 inline" />Up to 2 riders per jet ski</span>
+                </div>
+                <p className="text-muted-foreground mb-6 text-sm">
+                  Great for individuals, couples, and groups. Top speeds around 50MPH — perfect for a fun and fast lake day on Old Hickory Lake.
+                </p>
+                <Button className="w-full bg-[#3AB9F8] text-[#0B192D] hover:bg-[#3AB9F8]/90 font-bold" asChild data-testid="button-fleet-book-standard">
+                  <a href={BOOK_NOW} target="_blank" rel="noopener noreferrer">Book Now</a>
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Card 2 — Premium Yamaha VX High Output */}
+            <Card className="overflow-hidden border-[#3AB9F8]/40 hover:shadow-xl transition-shadow group relative">
+              <div className="absolute top-4 left-4 z-10">
+                <Badge className="bg-[#3AB9F8] text-[#0B192D] font-bold px-3 py-1 text-sm shadow">Premium</Badge>
+              </div>
+              <FleetCarousel skis={PREMIUM_FLEET} testIdPrefix="premium-carousel" />
+              <CardContent className="p-6">
+                <div className="flex justify-between items-start gap-3 mb-3">
+                  <h3 className="text-2xl font-bold">Yamaha VX High Output</h3>
+                  <Badge className="bg-[#0B192D] text-white whitespace-nowrap">2 Skis Available</Badge>
+                </div>
+                <div className="flex items-center gap-4 mb-4 text-sm font-medium">
+                  <span className="flex items-center text-[#0B192D] font-semibold">↑ See pricing above</span>
+                  <span className="text-muted-foreground flex items-center"><Users className="w-4 h-4 mr-1 inline" />Up to 2 riders per jet ski</span>
+                </div>
+                <p className="text-muted-foreground mb-6 text-sm">
+                  Our premium ride — the Yamaha VX High Output delivers elevated performance, reaching speeds of 65MPH, with extra power and a top-of-the-line experience on Old Hickory Lake.
+                </p>
+                <Button className="w-full bg-[#0B192D] text-white hover:bg-[#0B192D]/90 font-bold" asChild data-testid="button-fleet-book-premium">
+                  <a href={PREMIUM_LINK} target="_blank" rel="noopener noreferrer">Book Now</a>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground max-w-3xl mx-auto">
+              Pricing, fuel options, taxes, and booking fees are shown during checkout before payment.
+            </p>
+          </div>
+        </div>
+      </section>
 
       {/* ─── SECTION: BOATER CERTIFICATION ─── */}
       <section id="requirements" className="py-24 bg-white">
@@ -1054,75 +1281,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── SECTION 4: FLEET / RENTALS ─── */}
-      {/* Change 3: 2 options — carousel for base fleet, single card for premium */}
-      <section className="py-24 bg-white">
-        <div className="container px-4 mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">Our Jet Ski Rentals</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Choose your ride and reserve your time online.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-12">
-            {/* Card 1 — Standard Fleet (carousel) */}
-            <Card className="overflow-hidden border-border hover:shadow-xl transition-shadow group">
-              <FleetCarousel />
-              <CardContent className="p-6">
-                <div className="flex justify-between items-start mb-3">
-                  <h3 className="text-2xl font-bold">Standard Fleet</h3>
-                  <Badge className="bg-[#0B192D] text-white">5 Skis Available</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground mb-3">Yamaha EX Deluxe · EX Sport · Sea-Doo GTI</p>
-                <div className="flex items-center gap-4 mb-4 text-sm font-medium">
-                  <span className="flex items-center text-[#0B192D] font-semibold">↑ See pricing above</span>
-                  <span className="text-muted-foreground flex items-center"><Users className="w-4 h-4 mr-1 inline" />Up to 2 riders per jet ski</span>
-                </div>
-                <p className="text-muted-foreground mb-6 text-sm">
-                  Great for individuals, couples, and groups. Top speeds around 50MPH — perfect for a fun and fast lake day on Old Hickory Lake.
-                </p>
-                <Button className="w-full bg-[#3AB9F8] text-[#0B192D] hover:bg-[#3AB9F8]/90 font-bold" asChild data-testid="button-fleet-book-standard">
-                  <a href={BOOK_NOW} target="_blank" rel="noopener noreferrer">Book Now</a>
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Card 2 — Premium Yamaha VX High Output */}
-            <Card className="overflow-hidden border-[#3AB9F8]/40 hover:shadow-xl transition-shadow group relative">
-              <div className="absolute top-4 left-4 z-10">
-                <Badge className="bg-[#3AB9F8] text-[#0B192D] font-bold px-3 py-1 text-sm shadow">Premium</Badge>
-              </div>
-              <div className="aspect-[16/9] overflow-hidden relative">
-                <img src={premiumPic} alt="Yamaha VX High Output" className="w-full h-full object-cover object-center" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0B192D]/50 via-transparent to-transparent" />
-              </div>
-              <CardContent className="p-6">
-                <div className="flex justify-between items-start mb-3">
-                  <h3 className="text-2xl font-bold">Yamaha VX High Output</h3>
-                </div>
-                <div className="flex items-center gap-4 mb-4 text-sm font-medium">
-                  <span className="flex items-center text-[#0B192D] font-semibold">↑ See pricing above</span>
-                  <span className="text-muted-foreground flex items-center"><Users className="w-4 h-4 mr-1 inline" />Up to 2 riders per jet ski</span>
-                </div>
-                <p className="text-muted-foreground mb-6 text-sm">
-                  Our premium ride — the Yamaha VX High Output delivers elevated performance, reaching speeds of 65MPH, with extra power and a top-of-the-line experience on Old Hickory Lake.
-                </p>
-                <Button className="w-full bg-[#0B192D] text-white hover:bg-[#0B192D]/90 font-bold" asChild data-testid="button-fleet-book-premium">
-                  <a href={PREMIUM_LINK} target="_blank" rel="noopener noreferrer">Book Now</a>
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground max-w-3xl mx-auto">
-              Pricing, fuel options, taxes, and booking fees are shown during checkout before payment.
-            </p>
-          </div>
-        </div>
-      </section>
-
       {/* ─── SECTION 5: WHY CHOOSE NASHSKI ─── */}
       {/* Change 4: each box is now an accordion dropdown with descriptions */}
       <section id="about" className="py-24 bg-muted/40">
@@ -1158,39 +1316,6 @@ export default function Home() {
             <Button size="lg" asChild className="bg-[#0B192D] text-white hover:bg-[#0B192D]/90 h-14 px-10 text-lg font-bold" data-testid="button-why-reserve">
               <a href={BOOK_NOW} target="_blank" rel="noopener noreferrer">Reserve Your Ride</a>
             </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── SECTION 5c: GALLERY & COMMERCIAL ─── */}
-      {/* Photo gallery and commercial video */}
-      <section id="gallery" className="py-24 bg-[#0B192D]">
-        <div className="container px-4 mx-auto max-w-6xl">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">See NashSki in Action</h2>
-            <p className="text-lg text-white/70 max-w-xl mx-auto">Real shots from the lake, the marina, and our fleet on Old Hickory Lake.</p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8 items-start">
-            {/* Photo Gallery Slideshow */}
-            <div>
-              <GallerySlideshow />
-              <p className="text-white/40 text-xs text-center mt-3">Hover to pause · click arrows or dots to navigate</p>
-            </div>
-
-            {/* Commercial Video */}
-            <div className="flex flex-col items-center">
-              <div className="w-full max-w-[340px] mx-auto rounded-2xl overflow-hidden shadow-2xl" style={{ aspectRatio: "9/16" }}>
-                <iframe
-                  src="https://www.youtube.com/embed/RZqSzK3INlE?rel=0&modestbranding=1"
-                  title="NashSki Rentals Commercial"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="w-full h-full border-0"
-                />
-              </div>
-              <p className="text-white/40 text-xs text-center mt-3">NashSki Rentals — Official Commercial</p>
-            </div>
           </div>
         </div>
       </section>
