@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Accordion,
@@ -315,35 +315,55 @@ function ReviewCard({ review, index }: { review: GoogleReview; index: number }) 
   );
 }
 
-function mergeReviews(apiReviews: GoogleReview[], staticReviews: GoogleReview[]): GoogleReview[] {
-  const apiNames = new Set(apiReviews.map((r) => r.authorName.toLowerCase().trim()));
-  const extras = staticReviews.filter((r) => !apiNames.has(r.authorName.toLowerCase().trim()));
-  return [...apiReviews, ...extras];
+// Google returns at most 5 reviews; repeat them so one marquee pass fills wide screens.
+const MIN_MARQUEE_CARDS = 8;
+
+type ReviewsState =
+  | { status: "loading" }
+  | { status: "live"; data: ReviewsData }
+  | { status: "failed" };
+
+function readCachedReviews(): ReviewsData | null {
+  try {
+    const cached = localStorage.getItem(CACHE_KEY);
+    const parsed = cached ? (JSON.parse(cached) as ReviewsData) : null;
+    return parsed && parsed.reviews?.length ? parsed : null;
+  } catch { return null; }
 }
 
 function GoogleReviewsSection() {
-  const [data, setData] = useState<ReviewsData | null>(() => {
-    try {
-      const cached = localStorage.getItem(CACHE_KEY);
-      return cached ? (JSON.parse(cached) as ReviewsData) : null;
-    } catch { return null; }
+  // A cached API response is real Google data, so it counts as live until a fresh fetch replaces it.
+  const [state, setState] = useState<ReviewsState>(() => {
+    const cached = readCachedReviews();
+    return cached ? { status: "live", data: cached } : { status: "loading" };
   });
   const [paused, setPaused] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
     fetch("/api/google-reviews")
       .then((r) => { if (!r.ok) throw new Error(); return r.json() as Promise<ReviewsData>; })
       .then((d) => {
-        setData(d);
+        if (!d.reviews?.length) throw new Error("No reviews returned");
+        if (cancelled) return;
+        setState({ status: "live", data: d });
         try { localStorage.setItem(CACHE_KEY, JSON.stringify(d)); } catch { /* ignore */ }
       })
-      .catch(() => { /* keep cached data if available */ });
+      .catch(() => {
+        // Keep cached live data if we have it; otherwise fall back to the hardcoded reviews.
+        if (!cancelled) setState((s) => (s.status === "live" ? s : { status: "failed" }));
+      });
+    return () => { cancelled = true; };
   }, []);
 
-  const rating = data?.rating ?? 5.0;
-  const count = data?.userRatingCount ?? 0;
-  const reviews = mergeReviews(data?.reviews ?? [], STATIC_REVIEWS);
-  const marqueeReviews = [...reviews, ...reviews];
+  const live = state.status === "live" ? state.data : null;
+  const rating = live?.rating ?? null;
+  const count = live?.userRatingCount ?? 0;
+  const reviews = live ? live.reviews : state.status === "failed" ? STATIC_REVIEWS : [];
+  const loopReviews = reviews.length
+    ? Array.from({ length: Math.ceil(MIN_MARQUEE_CARDS / reviews.length) }, () => reviews).flat()
+    : [];
+  const marqueeReviews = [...loopReviews, ...loopReviews];
 
   return (
     <section id="reviews" className="bg-[#0B192D]">
@@ -372,19 +392,23 @@ function GoogleReviewsSection() {
                 {GOOGLE_G_SVG}
                 <span className="text-white/60 text-sm font-medium">Google Reviews</span>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-6xl font-black text-white leading-none">{rating.toFixed(1)}</span>
-                <div className="flex flex-col gap-1">
-                  <div className="flex gap-0.5">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                    ))}
+              {rating !== null && (
+                <div className="flex items-center gap-3">
+                  <span className="text-6xl font-black text-white leading-none">{rating.toFixed(1)}</span>
+                  <div className="flex flex-col gap-1">
+                    <div className="flex gap-0.5">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className={`w-5 h-5 ${i < Math.round(rating) ? "fill-yellow-400 text-yellow-400" : "fill-white/20 text-white/20"}`} />
+                      ))}
+                    </div>
+                    {count > 0 && (
+                      <p className="text-white/40 text-xs">
+                        {`${count} review${count !== 1 ? "s" : ""}`}
+                      </p>
+                    )}
                   </div>
-                  <p className="text-white/40 text-xs">
-                    {count > 0 ? `${count} review${count !== 1 ? "s" : ""}` : "Google Reviews"}
-                  </p>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -398,13 +422,21 @@ function GoogleReviewsSection() {
         <div className="pointer-events-none absolute inset-y-0 left-0 w-24 z-10 bg-gradient-to-r from-[#0B192D] to-transparent" />
         <div className="pointer-events-none absolute inset-y-0 right-0 w-24 z-10 bg-gradient-to-l from-[#0B192D] to-transparent" />
 
-        <div className={`flex gap-5 w-max ${paused ? "animate-reviews-marquee-paused" : "animate-reviews-marquee"}`}>
-          {marqueeReviews.map((review, i) => (
-            <div key={`${review.authorName}-${i}`} className="w-80 flex-shrink-0">
-              <ReviewCard review={review} index={i % reviews.length} />
-            </div>
-          ))}
-        </div>
+        {state.status === "loading" ? (
+          <div className="flex gap-5 w-max" aria-hidden="true">
+            {[...Array(MIN_MARQUEE_CARDS)].map((_, i) => (
+              <div key={i} className="w-80 h-56 flex-shrink-0 rounded-2xl bg-white/[0.06] border border-white/10 animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          <div className={`flex gap-5 w-max ${paused ? "animate-reviews-marquee-paused" : "animate-reviews-marquee"}`}>
+            {marqueeReviews.map((review, i) => (
+              <div key={`${review.authorName}-${i}`} className="w-80 flex-shrink-0">
+                <ReviewCard review={review} index={i % reviews.length} />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="px-4 pb-12">
