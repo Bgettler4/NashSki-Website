@@ -41,6 +41,7 @@ const DIRECTIONS_LINK = "https://google.com/maps/place/NashSki+Jet+Ski+Rentals/d
 const INSTAGRAM_LINK = "https://www.instagram.com/nash.skii/";
 const FACEBOOK_LINK = "https://www.facebook.com/people/NashSki/61567724215545/?sk=about";
 const GOOGLE_REVIEWS_LINK = "https://g.page/r/CTnFcBJUbbChEAE/review";
+const GIFT_CARD_LINK = "https://trytn.com/en/NashSkiLLC/details/f32bcfd4-b71f-43e2-bd99-71940f63959d?typeofproduct=merchandise";
 
 const BASE_FLEET = [
   { label: "Yamaha EX Deluxe",       img: fleetPic1 },
@@ -803,6 +804,19 @@ export default function Home() {
                     Prebook 2027 <ArrowRight className="w-4 h-4 ml-1 inline" />
                   </a>
                 </Button>
+                <div className="mt-4 pt-4 border-t border-white/15">
+                  <p className="font-bold text-base md:text-lg leading-snug">
+                    🎄 Give the gift of the lake this Christmas
+                  </p>
+                  <p className="text-sm md:text-base text-white/90 mt-1 leading-relaxed">
+                    <span className="font-semibold text-[#3AB9F8]">$100 gift cards</span> for friends &amp; family, good toward a future rental.
+                  </p>
+                  <Button asChild size="sm" variant="outline" className="mt-3 bg-transparent border-white text-white hover:bg-white/10 font-semibold px-5" data-testid="button-hero-giftcard">
+                    <a href={GIFT_CARD_LINK} target="_blank" rel="noopener noreferrer">
+                      Shop Gift Cards <ArrowRight className="w-4 h-4 ml-1 inline" />
+                    </a>
+                  </Button>
+                </div>
               </div>
             </motion.div>
 
