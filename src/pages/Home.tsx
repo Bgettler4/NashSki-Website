@@ -788,6 +788,24 @@ export default function Home() {
             variants={staggerContainer}
             className="flex flex-col items-center w-full max-w-4xl"
           >
+            {/* Off-season promo — remove when the 2027 season opens */}
+            <motion.div variants={fadeInUp} className="mb-6 px-2 w-full flex justify-center">
+              <div className="w-full max-w-xl bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl px-5 py-4 text-center text-white" data-testid="card-offseason-promo">
+                <p className="font-bold text-base md:text-lg leading-snug">
+                  Thank you for an amazing <span className="text-[#3AB9F8]">2026 season!</span>
+                </p>
+                <p className="text-sm md:text-base text-white/90 mt-1 leading-relaxed">
+                  We reopen mid-April 2027. The first 25 to prebook get <span className="font-semibold text-[#3AB9F8]">15% off</span> with code{" "}
+                  <span className="font-mono font-bold bg-[#3AB9F8] text-[#0B192D] px-2 rounded">FIRST</span>
+                </p>
+                <Button asChild size="sm" className="mt-3 bg-[#3AB9F8] text-[#0B192D] hover:bg-[#3AB9F8]/90 font-semibold px-5" data-testid="button-hero-prebook">
+                  <a href={BOOK_NOW} target="_blank" rel="noopener noreferrer">
+                    Prebook 2027 <ArrowRight className="w-4 h-4 ml-1 inline" />
+                  </a>
+                </Button>
+              </div>
+            </motion.div>
+
             <motion.div variants={fadeInUp} className="mb-5 px-2 w-full flex justify-center">
               <a href={DIRECTIONS_LINK} target="_blank" rel="noopener noreferrer" data-testid="link-hero-location-badge">
                 <Badge variant="outline" className="bg-white/10 text-white border-white/20 px-3 py-1.5 text-xs md:text-sm backdrop-blur-sm hover:bg-white/20 transition-colors cursor-pointer text-center leading-snug">
